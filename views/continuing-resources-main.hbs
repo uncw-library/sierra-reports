@@ -10,6 +10,12 @@
         $('.datepicker').datepicker();
 
     });
+
+    $(function(){
+        $("#yearSelect").change(function(){
+        window.location='?year=' + this.value
+        });
+    });
 </script>
 
 <div class="row justify-content-center">
@@ -21,7 +27,12 @@
 <div class="row justify-content-center">
     <div class="col-auto">
         <div class="form-group" style="text-align:center">
-            <h5>Fiscal Year {{startYear}}/{{endYear}}</h5>
+        <label for="yearSelect">Choose year:</label>
+        <select class="form-control" id="yearSelect">
+            {{#each years}}
+                <option value="{{this}}" {{#if (isSelectedYear this ../selectedYear)}}selected{{/if}}>Fiscal Year {{previousYear this}}/{{this}}</option>
+            {{/each}}
+        </select>
         </div>
     </div>
 </div>
@@ -30,21 +41,29 @@
     <table id="continuing-resources-main" class="table table-bordered">
         <thead>
             <th>Department</th>
-            <th>Appropriation</th>
+            {{#if showAddFields}}
+                <th>Appropriation</th>
+            {{/if}}
             <th>Total Paid Amount</th>
-            <th>Total Encumbrance</th>
-            <th>Free Balance</th>
-            <th>Cash Balance</th>
+            {{#if showAddFields}}
+                <th>Total Encumbrance</th>
+                <th>Free Balance</th>
+                <th>Cash Balance</th>
+            {{/if}}
         </thead>
         <tbody>
             {{#each result}}
                 <tr>
                     <td><a href="/continuing-resources/{{extract this.name}}">{{this.name}}</a></td>
-                    <td>${{formatNumber this.appropriation}}</td>
-                    <td>${{formatNumber this.expenditure}}</td>
-                    <td>${{formatNumber this.encumbrance}}</td>
-                    <td>${{formatNumber this.free_balance}}</td>
-                    <td>${{formatNumber this.cash_balance}}</td>
+                    {{#if ../showAddFields}}
+                        <td>${{formatNumber this.appropriation}}</td>
+                    {{/if}}
+                    <td>${{formatNumber this.total_amt}}</td>
+                    {{#if ../showAddFields}}
+                        <td>${{formatNumber this.encumbrance}}</td>
+                        <td>${{formatNumber this.free_balance}}</td>
+                        <td>${{formatNumber this.cash_balance}}</td>
+                    {{/if}}
                 </tr>
             {{/each}}
         </tbody>

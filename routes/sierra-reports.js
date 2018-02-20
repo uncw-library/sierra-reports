@@ -585,6 +585,7 @@ router.get('/continuing-resources', Config.ensureAuthenticated, function(req, re
 router.get('/continuing-resources/main', Config.ensureAuthenticated, function(req, res, next){
     // show the UNCW Subscription overview
     var query = sierra.query("SELECT " +
+    "fund_master_id, " +
     "name, " +
     "to_char((appropriation::decimal)/100::float8, '9999999.99') as appropriation,  to_char((expenditure::decimal)/100::float8, '9999999.99') as expenditure, " + 
     "to_char((encumbrance::decimal)/100::float8, '9999999.99') as encumbrance, " +
@@ -597,14 +598,103 @@ router.get('/continuing-resources/main', Config.ensureAuthenticated, function(re
 
         var startYear = ((new Date()).getMonth() < 6) ? String(Number((new Date()).getFullYear()) - 1) : String(Number((new Date()).getFullYear()));
         var endYear = ((new Date()).getMonth() < 6) ? String(Number((new Date()).getFullYear())) : String(Number((new Date()).getFullYear()) + 1);
+        
 
-        res.render('continuing-resources-main', {
-            layout: 'layout',
-            title: 'UNCW Subscriptions',
-            result: result.rows,
-            startYear,
-            endYear,
-        });
+
+
+
+
+
+
+
+          //For each department we need to run detailed query and sum the price amount of the results
+          Async.eachOf(result.rows, function(department, index, callback){
+            
+                          var queryStartDate = (req.query.year) ? String(Number(req.query.year) - 1) + "-07-01" : startYear + "-07-01";
+                          var queryEndDate = (req.query.year) ? String(Number(req.query.year)) + "-06-30" : endYear + "-06-30";
+                          var query = sierra.query("" +
+                              "SELECT " +
+            
+                              //"sum(round(((((invoice_record_line.paid_amt/subtotal_amt)*(shipping_amt+discount_amt))+invoice_record_line.paid_amt)), 2)) AS paid_amt " +
+                              "sum(round(order_record_paid.paid_amount, 2)) AS paid_amt " +
+            
+                              "From sierra_view.order_record_cmf " +
+                              "LEFT JOIN sierra_view.fund_master " +
+                              "ON sierra_view.fund_master.code_num::text=ltrim(sierra_view.order_record_cmf.fund_code, '0') " +
+                              "Left Join sierra_view.order_view " +
+                              "ON sierra_view.order_view.record_id=sierra_view.order_record_cmf.order_record_id " +
+                              "Left Join sierra_view.order_status_property_myuser " +
+                              "ON sierra_view.order_status_property_myuser.code=sierra_view.order_view.order_status_code " +
+                              //"LEFT JOIN sierra_view.invoice_record_line " +
+                              //"ON sierra_view.invoice_record_line.order_record_metadata_id=sierra_view.order_view.record_id " +
+                              "LEFT JOIN sierra_view.user_defined_ocode3_myuser " +
+                              "ON sierra_view.user_defined_ocode3_myuser.code=sierra_view.order_view.ocode3 " +
+                              "LEFT JOIN sierra_view.bib_record_order_record_link " +
+                              "ON sierra_view.bib_record_order_record_link.order_record_id=sierra_view.order_view.record_id " +
+                              "LEFT JOIN sierra_view.bib_record_property " +
+                              "ON sierra_view.bib_record_property.bib_record_id=sierra_view.bib_record_order_record_link.bib_record_id " +
+                              "LEFT JOIN sierra_view.material_property_myuser " +
+                              "ON sierra_view.material_property_myuser.code=sierra_view.bib_record_property.material_code " +
+                              //"LEFT JOIN sierra_view.invoice_view " +
+                              //"ON sierra_view.invoice_record_line.invoice_record_id=sierra_view.invoice_view.id " +
+            
+                              "LEFT JOIN sierra_view.order_record_paid " +
+                              "ON sierra_view.order_record_paid.order_record_id=sierra_view.order_view.record_id " +
+            
+                              "where " +
+                              "accounting_unit_id='4' " +
+                              "and fund_master.id=" + department.fund_master_id + " " +
+                              "and order_status_code !='z' " +
+                              "and order_view.record_creation_date_gmt >= '"+ queryStartDate+"' " +
+                              "and order_view.record_creation_date_gmt <= '"+ queryEndDate +"' ", function(err, result2){
+                                  if (err) console.log(err);
+                                  if (result2) {
+                                      result.rows[index].total_amt = (result2.rows[0].paid_amt) ? (result2.rows[0].paid_amt) : 0;
+                                  }
+                                  
+                                  callback();
+            
+                              });
+                      }, function(err, paid_amt_sum){
+                          if (err) console.log(err);
+                          console.log("CALLBACK");
+                          //Create an array of years, 2012 to present
+                          var years = [];
+                          var startYear = 2012;
+                          var iterYear = startYear;
+                          Async.whilst(function(){return iterYear <= Number(endYear);}, function(callback){
+                              years.push(iterYear);
+                              iterYear++;
+                              callback(null);
+                          }, function(err){
+                              var selectedYear = (req.query.year) ? (req.query.year) : Number(endYear);
+                              res.render('continuing-resources-main', {
+                                  layout: 'layout',
+                                  title: 'UNCW Subscriptions',
+                                  result: result.rows,
+                                  years: years,
+                                  selectedYear: selectedYear,
+                                  showAddFields: (selectedYear == Number(endYear))
+                              });
+                          });
+                      }) ;
+
+
+
+
+
+
+
+
+
+
+        // res.render('continuing-resources-main', {
+        //     layout: 'layout',
+        //     title: 'UNCW Subscriptions',
+        //     result: result.rows,
+        //     startYear,
+        //     endYear,
+        // });
     });
 });
 
@@ -1068,51 +1158,55 @@ router.get('/continuing-resources/title/:order', Config.ensureAuthenticated, fun
         "order_view.record_num='" + orderRecord + "' " +
         
         "order by posted_date desc ", function(err, result){
-            if (err) console.log(err);
-            if (view == 'table') {
-                res.render('continuing-resources-title-table', {
-                    layout: 'layout',
-                    title: 'Title Stats',
-                    result: result.rows,
-                });
+            if (err) {
+                console.log(err);
+                res.send('There was an error processing the request.');
             } else {
-                var currentFiscalStartYear = ((new Date()).getMonth() < 6) ? String(Number((new Date()).getFullYear()) - 1) : String(Number((new Date()).getFullYear()));
-                var currentFiscalEndYear = ((new Date()).getMonth() < 6) ? String(Number((new Date()).getFullYear())) : String(Number((new Date()).getFullYear()) + 1);
-        
-                //Create an array of fiscal years, 2012 to present
-                var fiscalYears = [];
-                var startYear = 2005;
-                var iterYear = startYear;
-                Async.whilst(function(){return iterYear <= Number(currentFiscalEndYear);}, function(callback){
-                    var yearObject = {
-                        name: String(iterYear) + '/' + String(iterYear + 1),
-                        startDate: String(iterYear) + '-07-01',
-                        endDate: String(iterYear + 1) + '-06-30',
-                        totalAmount: 0,
-                    }
-                    fiscalYears.push(yearObject);
-                    iterYear++;
-                    callback(null);
-                }, function(err){
-                    if (err) console.log(err);
-
-                    Async.eachOf(result.rows, function(row, index, callback){
-                        var rowDate = moment(row.posted_date).format('YYYY-MM-DD');
-                        
-                        var fiscalYear = fiscalYears.find(o => ( (moment(rowDate) >= moment(o.startDate)) && (moment(rowDate) <= moment(o.endDate)) ) );
-                        fiscalYear.totalAmount += Number(row.amt_paid);
+                if (view == 'table') {
+                    res.render('continuing-resources-title-table', {
+                        layout: 'layout',
+                        title: 'Title Stats',
+                        result: result.rows,
+                    });
+                } else {
+                    var currentFiscalStartYear = ((new Date()).getMonth() < 6) ? String(Number((new Date()).getFullYear()) - 1) : String(Number((new Date()).getFullYear()));
+                    var currentFiscalEndYear = ((new Date()).getMonth() < 6) ? String(Number((new Date()).getFullYear())) : String(Number((new Date()).getFullYear()) + 1);
+            
+                    //Create an array of fiscal years, 2012 to present
+                    var fiscalYears = [];
+                    var startYear = 2005;
+                    var iterYear = startYear;
+                    Async.whilst(function(){return iterYear <= Number(currentFiscalEndYear);}, function(callback){
+                        var yearObject = {
+                            name: String(iterYear) + '/' + String(iterYear + 1),
+                            startDate: String(iterYear) + '-07-01',
+                            endDate: String(iterYear + 1) + '-06-30',
+                            totalAmount: 0,
+                        }
+                        fiscalYears.push(yearObject);
+                        iterYear++;
                         callback(null);
-                    }, function (err){
+                    }, function(err){
                         if (err) console.log(err);
-                        console.log(fiscalYears);
-                        res.render('continuing-resources-title-graph', {
-                            layout: 'layout',
-                            title: 'Title Stats Visualization',
-                            data: fiscalYears,
-                            name: result.rows[0].title
+
+                        Async.eachOf(result.rows, function(row, index, callback){
+                            var rowDate = moment(row.posted_date).format('YYYY-MM-DD');
+                            
+                            var fiscalYear = fiscalYears.find(o => ( (moment(rowDate) >= moment(o.startDate)) && (moment(rowDate) <= moment(o.endDate)) ) );
+                            fiscalYear.totalAmount += Number(row.amt_paid);
+                            callback(null);
+                        }, function (err){
+                            if (err) console.log(err);
+                            console.log(fiscalYears);
+                            res.render('continuing-resources-title-graph', {
+                                layout: 'layout',
+                                title: 'Title Stats Visualization',
+                                data: fiscalYears,
+                                name: result.rows[0].title
+                            });
                         });
                     });
-                });
+                }
             }
         });
 
