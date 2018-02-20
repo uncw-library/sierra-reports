@@ -1,0 +1,68 @@
+<script>
+    $(document).ready(function(){
+        $('#overdue-items').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                'pageLength', 'copy', 'csv', 'excel', 'pdf', 'print'
+            ]
+        });
+        $('.datepicker').datepicker();
+    });
+</script>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <h1>{{title}}</h1>
+    </div>
+</div>
+
+<form method="GET">
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <input class="form-control datepicker" type="text" name="startDate" value="{{startDate}}" />
+        </div>
+        <div class="col-auto">
+            <label><strong>through</strong></label>
+        </div>
+        <div class="col-auto">
+            <input class="form-control datepicker" type="text" name="endDate" value="{{endDate}}" />
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <input type="submit" value="Filter" class="btn btn-primary"/>
+        </div>
+    </div>
+</form>
+
+<div class="col-12">
+    <table id="overdue-items" class="table table-bordered">
+        <thead>
+            <th>Location</th>
+            <th>Call Number</th>
+            <th>Copy</th>
+            <th>Volume</th>
+            <th>Title</th>
+            <th>Barcode</th>
+        </thead>
+        <tbody>
+            {{#each result}}
+                <tr>
+                    <td>{{this.location_name}}</td>
+                    <td>{{this.callnumber}}</td>
+                    <td>{{this.copy_num}}</td>
+                    <td>{{this.item_volume}}</td>
+                    <td>{{this.best_title}}</td>
+                    <td>{{this.barcode}}</td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <a href="/dashboard">Dashboard</a>
+    </div>
+</div>

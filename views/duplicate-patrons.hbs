@@ -1,0 +1,47 @@
+<script>
+    $(document).ready(function(){
+        $('#duplicate-patrons').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                'pageLength', 'copy', 'csv', 'excel', 'pdf', 'print'
+            ]
+        });
+    });
+</script>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <h1>{{title}}</h1>
+    </div>
+</div>
+
+<div class="col-12">
+    <table id="duplicate-patrons" class="table table-bordered">
+        <thead>
+            <th>Patron</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Expiration Date</th>
+            <th>P Type Code</th>
+        </thead>
+        <tbody>
+            {{#each result}}
+                <tr>
+                    <td>{{this.patron_record}}</td>
+                    <td>{{this.first_name}}</td>
+                    <td>{{this.last_name}}</td>
+                    <td>{{this.lower}}</td>
+                    <td>{{this.expiration_date}}</td>
+                    <td>{{this.ptype_code}}</td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <a href="/dashboard">Dashboard</a>
+    </div>
+</div>

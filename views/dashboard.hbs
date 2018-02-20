@@ -1,0 +1,27 @@
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <h1>{{title}}</h1>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <h4>{{user}}</h4>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <div class="list-group">
+            {{#each sites}}
+                <a class="list-group-item list-group-item-action" href="{{this.siteURL}}">{{this.siteName}}</a>
+            {{/each}}
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <button onclick="location.href='/logout';" type="button" class="btn btn-danger btn-block">Logout</button>
+    </div>
+</div>

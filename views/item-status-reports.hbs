@@ -1,0 +1,100 @@
+<script>
+    $(document).ready(function(){
+        $('#overdue-items').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                'pageLength', 'copy', 'csv', 'excel', 'pdf', 'print'
+            ]
+        });
+        $('.datepicker').datepicker();
+    });
+</script>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <h1>{{title}}</h1>
+    </div>
+</div>
+
+<form method="GET">
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <input class="form-control datepicker" type="text" name="startDate" value="{{startDate}}" />
+        </div>
+        <div class="col-auto">
+            <label><strong>through</strong></label>
+        </div>
+        <div class="col-auto">
+            <input class="form-control datepicker" type="text" name="endDate" value="{{endDate}}" />
+        </div>
+    </div>
+
+    <div class="row justify-content-left">               
+        <div class="col-auto">
+            <div class="form-group" style="border: solid 1px #ccc; border-radius: 5px; padding: 15px;">        
+                <div class="row justify-content-center">
+                    <div class="col-auto">
+                        <label>Item Type:</label>
+                        <select name="type" class="form-control">
+                            <option value="n" {{isSelected null 'n' type}}>Billed Items</option>
+                            <option value="z" {{isSelected null 'z' type}}>Claims Returned</option>
+                            <option value="d" {{isSelected null 'd' type}}>Damaged</option>
+                            <option value="$" {{isSelected null '$' type}}>Lost and Paid</option>
+                            <option value="p" {{isSelected null 'p' type}}>Lost and Transferred</option>
+                            <option value="i" {{isSelected null 'i' type}}>Lost Inventory</option>
+                            <option value="m" {{isSelected null 'm' type}}>Missing Items</option>
+                        </select>
+
+                        <label>Query Date:</label>
+                        <select name="queryDate" class="form-control">
+                            <option value="0" {{isSelected null '0' queryDate}}>Odue date - Last overdue notice sent</option>
+                            <option value="1" {{isSelected null '1' queryDate}}>Due date - Due date</option>
+                            <option value="2" {{isSelected null '2' queryDate}}>Out date - Checkout date</option>
+                            <option value="3" {{isSelected null '3' queryDate}}>Lchkin - Last checkin date</option>
+                            <option value="4" {{isSelected null '4' queryDate}}>Loutdate - checkout date</option>
+                            <option value="5" {{isSelected null '5' queryDate}}>Last update date</option>
+                            <option value="6" {{isSelected null '6' queryDate}}>Any date</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-auto">
+                        <input type="submit" value="Filter" class="btn btn-primary"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="col-12">
+    <table id="overdue-items" class="table table-bordered">
+        <thead>
+            <th>Location</th>
+            <th>Call Number</th>
+            <th>Copy</th>
+            <th>Volume</th>
+            <th>Title</th>
+            <th>Barcode</th>
+        </thead>
+        <tbody>
+            {{#each result}}
+                <tr>
+                    <td>{{this.location_name}}</td>
+                    <td>{{this.callnumber}}</td>
+                    <td>{{this.copy_num}}</td>
+                    <td>{{this.item_volume}}</td>
+                    <td>{{this.best_title}}</td>
+                    <td>{{this.barcode}}</td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <a href="/dashboard">Dashboard</a>
+    </div>
+</div>

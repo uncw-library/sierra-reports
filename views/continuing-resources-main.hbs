@@ -1,0 +1,58 @@
+<script>
+    $(document).ready(function(){
+        $('#continuing-resources-main').DataTable({
+            "iDisplayLength": 50,
+            dom: 'Bfrtip',
+            buttons: [
+                'pageLength', 'copy', 'csv', 'excel', 'pdf', 'print'
+            ]
+        });
+        $('.datepicker').datepicker();
+
+    });
+</script>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <h1>{{title}}</h1>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <div class="form-group" style="text-align:center">
+            <h5>Fiscal Year {{startYear}}/{{endYear}}</h5>
+        </div>
+    </div>
+</div>
+
+<div class="col-12">
+    <table id="continuing-resources-main" class="table table-bordered">
+        <thead>
+            <th>Department</th>
+            <th>Appropriation</th>
+            <th>Total Paid Amount</th>
+            <th>Total Encumbrance</th>
+            <th>Free Balance</th>
+            <th>Cash Balance</th>
+        </thead>
+        <tbody>
+            {{#each result}}
+                <tr>
+                    <td><a href="/continuing-resources/{{extract this.name}}">{{this.name}}</a></td>
+                    <td>${{formatNumber this.appropriation}}</td>
+                    <td>${{formatNumber this.expenditure}}</td>
+                    <td>${{formatNumber this.encumbrance}}</td>
+                    <td>${{formatNumber this.free_balance}}</td>
+                    <td>${{formatNumber this.cash_balance}}</td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <a href="/dashboard">Dashboard</a>
+    </div>
+</div>

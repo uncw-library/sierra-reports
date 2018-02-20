@@ -1,0 +1,113 @@
+<script>
+    $(document).ready(function(){
+        $('#fund-report').DataTable({
+            "iDisplayLength": 50,
+            dom: 'Bfrtip',
+            buttons: [
+                'pageLength', 'copy', 'csv', 'excel', 'pdf', 'print'
+            ]
+        });
+        $('.datepicker').datepicker();
+
+        $(function(){
+            $("#yearSelect").change(function(){
+            window.location='?year=' + this.value + '&department={{selectedDepartment}}'
+        });
+});
+    });
+</script>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <h1>{{title}}</h1>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <a href="/fund-report?year={{selectedYear}}">Overview</a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <div class="form-group" style="text-align:center">
+        <label for="yearSelect">Choose year:</label>
+        <select class="form-control" id="yearSelect">
+            {{#each years}}
+                <option value="{{this}}" {{#if (isSelectedYear this ../selectedYear)}}selected{{/if}}>Fiscal Year {{previousYear this}}/{{this}}</option>
+            {{/each}}
+        </select>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <h3>{{selectedDepartment}}</h3>
+    </div>
+</div>
+
+<div class="col-12">
+    <table id="fund-report" class="table table-bordered">
+        <thead>
+            <th>Title</th>
+            <th>Media</th>
+            <th>Order Number</th>
+            <th>Selector</th>
+            <th>Requestor</th>
+            <th>Paid Amount</th>
+            <th>Encumbrance</th>
+            <th>Order Status</th>
+            <th>Order Date</th>
+        </thead>
+        <tbody>
+            {{#each result}}
+                <tr>
+                    <td>{{this.title}}</td>
+                    <td>{{this.material_type}}</td>
+                    <td>{{this.order_record}}</td>
+                    <td>{{this.requestor}}</td>
+                    <td>{{this.selector}}</td>
+                    <td>${{formatMoney this.paid_amt}}</td>
+                    <td>${{this.encumbrance}}</td>                    
+                    <td>{{this.order_status}}</td>
+                    <td>{{formatDateSortable this.order_creation_date}}</td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+
+<div class="col-12">
+    <table id="fund-report" class="table table-bordered" style="margin-top:20px;">
+        <thead>
+            <th>Name</th>
+            <th>Total Amount Paid</th>
+            {{#if addFields}}
+                <th>Appropriation</th>
+                <th>Encumbrance</th>
+                <th>Cash Balance</th>
+                <th>Free Balance</th>                           
+            {{/if}}
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{selectedDepartment}}</td>
+                <td>${{totalPaidAmt}}</td>
+                {{#if addFields}}
+                    <td>${{addFields.appropriation}}</td>
+                    <td>${{addFields.encumbrance}}</td>
+                    <td>${{addFields.cash_balance}}</td>
+                    <td>${{addFields.free_balance}}</td>                           
+                {{/if}}
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <a href="/dashboard">Dashboard</a>
+    </div>
+</div>

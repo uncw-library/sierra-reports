@@ -1,0 +1,73 @@
+<script>
+    $(document).ready(function(){
+        $('#continuing-resources-physical').DataTable({
+            "iDisplayLength": 50,
+            dom: 'Bfrtip',
+            buttons: [
+                'pageLength', 'copy', 'csv', 'excel', 'pdf', 'print'
+            ]
+        });
+        $('.datepicker').datepicker();
+    });
+</script>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <h1>{{title}}</h1>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <a href="/continuing-resources/main">Main view</a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-auto" id="dataView">
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Data View
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="?view=table">Table</a>
+                <a class="dropdown-item" href="?view=graph">Graph</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-12">
+    <table id="continuing-resources-physical" class="table table-bordered">
+        <thead>
+            <th>Title</th>
+            <th>Material Type</th>
+            <th>Order Record</th>
+            <th>Order Code 3</th>
+            <th>Amount Paid</th>
+            <th>Posted Date</th>
+            <th>Replace</th>
+            <th>Vendor Record Code</th>
+        </thead>
+        <tbody>
+            {{#each result}}
+                 <tr>
+                    <td>{{this.title}}</td>
+                    <td>{{this.materialtypename}}</td>
+                    <td>{{this.order_record}}</td>
+                    <td>{{this.ocode3}}</td>
+                    <td>${{this.amt_paid}}</td>
+                    <td>{{formatDate this.posted_date}}</td>
+                    <td>{{this.replace}}</td>
+                    <td>{{this.vendor_record_code}}</td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <a href="/dashboard">Dashboard</a>
+    </div>
+</div>

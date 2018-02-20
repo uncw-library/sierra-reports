@@ -1,0 +1,78 @@
+<script>
+    $(document).ready(function(){
+        $('#continuing-resources-physical').DataTable({
+            "iDisplayLength": 50,
+            dom: 'Bfrtip',
+            buttons: [
+                'pageLength', 'copy', 'csv', 'excel', 'pdf', 'print'
+            ]
+        });
+        $('.datepicker').datepicker();
+
+        $(function(){
+            $("#yearSelect").change(function(){
+            window.location='?year=' + this.value
+            });
+        });
+    });
+</script>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <h1>{{title}}</h1>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <a href="/continuing-resources/main">Main view</a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <div class="form-group" style="text-align:center">
+        <label for="yearSelect">Choose year:</label>
+        <select class="form-control" id="yearSelect">
+            {{#each years}}
+                <option value="{{this}}" {{#if (isSelectedYear this ../selectedYear)}}selected{{/if}}>Fiscal Year {{previousYear this}}/{{this}}</option>
+            {{/each}}
+        </select>
+        </div>
+    </div>
+</div>
+
+<div class="col-12">
+    <table id="continuing-resources-physical" class="table table-bordered">
+        <thead>
+            <th>Title</th>
+            <th>Order Record</th>
+            <th>Amount Paid</th>
+            <th>Posted Date</th>
+            <th>Material Type</th>
+            <th>Invoice Record</th>
+            <th>Invoice Number Text</th>
+            <th>Invoice Note</th>
+        </thead>
+        <tbody>
+            {{#each result}}
+                 <tr>
+                    <td><a href="/continuing-resources/title/{{this.order_record}}">{{this.title}}</a></td>
+                    <td>{{this.order_record}}</td>
+                    <td>${{this.amt_paid}}</td>
+                    <td>{{formatDate this.posted_date}}</td>
+                    <td>{{this.material_type}}</td>
+                    <td>{{this.invoice_record}}</td>
+                    <td>{{this.invoice_number_text}}</td>
+                    <td>{{invoice_note}}</td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <a href="/dashboard">Dashboard</a>
+    </div>
+</div>

@@ -1,0 +1,49 @@
+<script>
+    $(document).ready(function(){
+        $('#summon-deletes').DataTable({
+          dom: 'Bfrtip',
+          buttons: [
+              'pageLength', 'copy', 'csv', 'excel', 'pdf', 'print'
+          ]
+        });
+        $('.datepicker').datepicker();
+    });
+</script>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <h1><a href="/summon-deletes">{{title}}<a></h1>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <h2>
+          <a href="{{formatDatePrev startDate}}"><i class="fa fa-arrow-circle-left" aria-hidden="true"></i></a>
+          {{formatDate startDate}}
+          <a href="{{formatDateNext startDate}}"><i class="fa fa-arrow-circle-right" aria-hidden="true"></i></a>
+        </h2>
+    </div>
+</div>
+
+
+<div class="col-12">
+    <table id="summon-deletes" class="table table-bordered">
+        <thead>
+            <th>Record Number</th>
+        </thead>
+        <tbody>
+            {{#each result}}
+                <tr>
+                    <td>{{this.record_number}}</td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <a href="/dashboard">Dashboard</a>
+    </div>
+</div>
