@@ -1,0 +1,11 @@
+version: '2'
+services:
+  sierra-reports:
+    image: libapps-admin.uncw.edu:8000/randall-dev/sierra-reports
+    restart: always
+    environment:
+      SIERRA_USER: ChangeMe!
+      SIERRA_PASS: ChangeMe!
+      LDAP_USER: ChangeMe!
+      LDAP_PASS: ChangeMe!
+      NODE_ENV: production
