@@ -54,7 +54,7 @@
         <tbody>
             {{#each result}}
                 <tr>
-                    <td><a href="/continuing-resources/{{extract this.name}}">{{this.name}}</a></td>
+                    <td><a href="/continuing-resources/{{extract this.name}}?year={{../year}}">{{this.name}}</a></td>
                     {{#if ../showAddFields}}
                         <td>${{formatNumber this.appropriation}}</td>
                     {{/if}}

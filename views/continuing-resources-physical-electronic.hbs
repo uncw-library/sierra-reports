@@ -56,13 +56,13 @@
         <tbody>
             {{#each result}}
                  <tr>
-                    <td><a href="/continuing-resources/title/{{this.order_record}}">{{this.best_title}}</a></td>
+                    <td><a href="/continuing-resources/title/{{this.order_record}}?year={{../year}}">{{this.best_title}}</a></td>
                     <td>{{this.name}}</td>
                     <td>{{this.order_record}}</td>
                     <td>{{this.replace}}</td>
                     <td>${{this.amt_paid}}</td>
                     <td>{{formatDate this.to_char}}</td>
-                    <td><a href="/continuing-resources/electronic/{{this.vendor_record_code}}">{{this.vendor_record_code}}</a></td>
+                    <td><a href="/continuing-resources/electronic/{{this.vendor_record_code}}?year={{../year}}">{{this.vendor_record_code}}</a></td>
                     
                 </tr>
             {{/each}}

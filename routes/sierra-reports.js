@@ -603,7 +603,7 @@ router.get('/continuing-resources/main', Config.ensureAuthenticated, function(re
           Async.eachOf(result.rows, function(department, index, callback){
                           var queryStartDate = (req.query.year) ? String(Number(req.query.year) - 1) + "-07-01" : startYear + "-07-01";
                           var queryEndDate = (req.query.year) ? String(Number(req.query.year)) + "-06-30" : endYear + "-06-30";
-                          var query = sierra.query("select sum(round(((discount_amt/nullif(subtotal_amt,0))*paid_amt)+((shipping_amt/nullif(subtotal_amt,0)))*paid_amt)+paid_amt,2)) " +
+                          var query = sierra.query("select sum(round(((discount_amt/nullif(subtotal_amt,0))*paid_amt)+((shipping_amt/nullif(subtotal_amt,0))*paid_amt)+paid_amt,2)) " +
                             "From sierra_view.order_record_cmf " +
                             
                             "LEFT JOIN sierra_view.fund_master " +
@@ -669,6 +669,7 @@ router.get('/continuing-resources/main', Config.ensureAuthenticated, function(re
                                   title: 'UNCW Subscriptions',
                                   result: result.rows,
                                   years: years,
+                                  year: req.query.year,
                                   selectedYear: selectedYear,
                                   showAddFields: (selectedYear == Number(endYear))
                               });
@@ -829,6 +830,7 @@ router.get('/continuing-resources/physical', Config.ensureAuthenticated, functio
                 startYear: currentFiscalStartYear,
                 endYear: currentFiscalEndYear,
                 years,
+                year: req.query.year,
                 selectedYear,
             });
         });
@@ -973,7 +975,8 @@ router.get('/continuing-resources/electronic', Config.ensureAuthenticated, funct
                 startYear: currentFiscalStartYear,
                 endYear: currentFiscalEndYear,
                 selectedYear,
-                years
+                years,
+                year: req.query.year,
             });
         });
     });
@@ -1042,7 +1045,8 @@ router.get('/continuing-resources/physical/:vendor', Config.ensureAuthenticated,
                 startYear: currentFiscalStartYear,
                 endYear: currentFiscalEndYear,
                 selectedYear,
-                years
+                years,
+                year: req.query.year,
             });
         });
     });
