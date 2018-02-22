@@ -58,7 +58,11 @@
                     {{#if ../showAddFields}}
                         <td>${{formatNumber this.appropriation}}</td>
                     {{/if}}
-                    <td>${{formatNumber this.total_amt}}</td>
+                    {{#if ../showAddFields}}
+                        <td>${{formatNumber this.expenditure}}</td>
+                    {{else}}
+                        <td>${{formatNumber this.total_amt}}</td>
+                    {{/if}}
                     {{#if ../showAddFields}}
                         <td>${{formatNumber this.encumbrance}}</td>
                         <td>${{formatNumber this.free_balance}}</td>

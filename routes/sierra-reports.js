@@ -598,58 +598,53 @@ router.get('/continuing-resources/main', Config.ensureAuthenticated, function(re
 
         var startYear = ((new Date()).getMonth() < 6) ? String(Number((new Date()).getFullYear()) - 1) : String(Number((new Date()).getFullYear()));
         var endYear = ((new Date()).getMonth() < 6) ? String(Number((new Date()).getFullYear())) : String(Number((new Date()).getFullYear()) + 1);
-        
-
-
-
-
-
-
-
 
           //For each department we need to run detailed query and sum the price amount of the results
           Async.eachOf(result.rows, function(department, index, callback){
-            
                           var queryStartDate = (req.query.year) ? String(Number(req.query.year) - 1) + "-07-01" : startYear + "-07-01";
                           var queryEndDate = (req.query.year) ? String(Number(req.query.year)) + "-06-30" : endYear + "-06-30";
-                          var query = sierra.query("" +
-                              "SELECT " +
-            
-                              //"sum(round(((((invoice_record_line.paid_amt/subtotal_amt)*(shipping_amt+discount_amt))+invoice_record_line.paid_amt)), 2)) AS paid_amt " +
-                              "sum(round(order_record_paid.paid_amount, 2)) AS paid_amt " +
-            
-                              "From sierra_view.order_record_cmf " +
-                              "LEFT JOIN sierra_view.fund_master " +
-                              "ON sierra_view.fund_master.code_num::text=ltrim(sierra_view.order_record_cmf.fund_code, '0') " +
-                              "Left Join sierra_view.order_view " +
-                              "ON sierra_view.order_view.record_id=sierra_view.order_record_cmf.order_record_id " +
-                              "Left Join sierra_view.order_status_property_myuser " +
-                              "ON sierra_view.order_status_property_myuser.code=sierra_view.order_view.order_status_code " +
-                              //"LEFT JOIN sierra_view.invoice_record_line " +
-                              //"ON sierra_view.invoice_record_line.order_record_metadata_id=sierra_view.order_view.record_id " +
-                              "LEFT JOIN sierra_view.user_defined_ocode3_myuser " +
-                              "ON sierra_view.user_defined_ocode3_myuser.code=sierra_view.order_view.ocode3 " +
-                              "LEFT JOIN sierra_view.bib_record_order_record_link " +
-                              "ON sierra_view.bib_record_order_record_link.order_record_id=sierra_view.order_view.record_id " +
-                              "LEFT JOIN sierra_view.bib_record_property " +
-                              "ON sierra_view.bib_record_property.bib_record_id=sierra_view.bib_record_order_record_link.bib_record_id " +
-                              "LEFT JOIN sierra_view.material_property_myuser " +
-                              "ON sierra_view.material_property_myuser.code=sierra_view.bib_record_property.material_code " +
-                              //"LEFT JOIN sierra_view.invoice_view " +
-                              //"ON sierra_view.invoice_record_line.invoice_record_id=sierra_view.invoice_view.id " +
-            
-                              "LEFT JOIN sierra_view.order_record_paid " +
-                              "ON sierra_view.order_record_paid.order_record_id=sierra_view.order_view.record_id " +
-            
-                              "where " +
-                              "accounting_unit_id='4' " +
-                              "and fund_master.id=" + department.fund_master_id + " " +
-                              "and order_status_code !='z' " +
-                              "and order_view.record_creation_date_gmt >= '"+ queryStartDate+"' " +
-                              "and order_view.record_creation_date_gmt <= '"+ queryEndDate +"' ", function(err, result2){
+                          var query = sierra.query("select sum(round(((discount_amt/subtotal_amt)*paid_amt)+((shipping_amt/subtotal_amt)*paid_amt)+paid_amt,2)) " +
+                            "From sierra_view.order_record_cmf " +
+                            
+                            "LEFT JOIN sierra_view.fund_master " +
+                            "ON sierra_view.fund_master.code_num::text=ltrim(sierra_view.order_record_cmf.fund_code, '0') " +
+                            
+                            "Left Join sierra_view.order_view " +
+                            "ON sierra_view.order_view.record_id=sierra_view.order_record_cmf.order_record_id " +
+                            
+                            "Left Join sierra_view.order_status_property_myuser " +
+                            "ON sierra_view.order_status_property_myuser.code=sierra_view.order_view.order_status_code " +
+                            
+                            "LEFT JOIN sierra_view.invoice_record_line " +
+                            "ON sierra_view.invoice_record_line.order_record_metadata_id=sierra_view.order_view.record_id " +
+                            
+                            "LEFT JOIN sierra_view.invoice_view " +
+                            "ON sierra_view.invoice_record_line.invoice_record_id=sierra_view.invoice_view.id " +
+                            
+                            "LEFT JOIN sierra_view.user_defined_ocode3_myuser " +
+                            "ON sierra_view.user_defined_ocode3_myuser.code=sierra_view.order_view.ocode3 " +
+                            
+                            "LEFT JOIN sierra_view.bib_record_order_record_link " +
+                            "ON sierra_view.bib_record_order_record_link.order_record_id=sierra_view.order_view.record_id " +
+                            
+                            "LEFT JOIN sierra_view.bib_record_property " +
+                            "ON sierra_view.bib_record_property.bib_record_id=sierra_view.bib_record_order_record_link.bib_record_id " +
+                            
+                            "LEFT JOIN sierra_view.material_property_myuser " +
+                            "ON sierra_view.material_property_myuser.code=sierra_view.bib_record_property.material_code " +
+                            
+                            "where " +
+                            
+                            
+                            "fund_master.id='" + department.fund_master_id + "' " +
+                            "and posted_date_gmt>='"+ queryStartDate +"' " +
+                            "and posted_date_gmt<='"+ queryEndDate +"' ", function(err, result2){
                                   if (err) console.log(err);
+
                                   if (result2) {
-                                      result.rows[index].total_amt = (result2.rows[0].paid_amt) ? (result2.rows[0].paid_amt) : 0;
+                                      result.rows[index].total_amt = (result2.rows[0].sum) ? (result2.rows[0].sum) : 0;
+                                  } else {
+                                      result.rows[index].total_amt = 0;
                                   }
                                   
                                   callback();
@@ -658,6 +653,7 @@ router.get('/continuing-resources/main', Config.ensureAuthenticated, function(re
                       }, function(err, paid_amt_sum){
                           if (err) console.log(err);
                           console.log("CALLBACK");
+                          console.log(result.rows);
                           //Create an array of years, 2012 to present
                           var years = [];
                           var startYear = 2012;
