@@ -603,7 +603,7 @@ router.get('/continuing-resources/main', Config.ensureAuthenticated, function(re
           Async.eachOf(result.rows, function(department, index, callback){
                           var queryStartDate = (req.query.year) ? String(Number(req.query.year) - 1) + "-07-01" : startYear + "-07-01";
                           var queryEndDate = (req.query.year) ? String(Number(req.query.year)) + "-06-30" : endYear + "-06-30";
-                          var query = sierra.query("select sum(round(((discount_amt/subtotal_amt)*paid_amt)+((shipping_amt/subtotal_amt)*paid_amt)+paid_amt,2)) " +
+                          var query = sierra.query("select sum(round(((discount_amt/nullif(subtotal_amt,0))*paid_amt)+((shipping_amt/nullif(subtotal_amt,0)))*paid_amt)+paid_amt,2)) " +
                             "From sierra_view.order_record_cmf " +
                             
                             "LEFT JOIN sierra_view.fund_master " +
@@ -700,7 +700,7 @@ router.get('/continuing-resources/physical', Config.ensureAuthenticated, functio
     var queryStartDate = (req.query.year) ? String(Number(req.query.year) - 1) + "-07-01" : currentFiscalStartYear + "-07-01";
     var queryEndDate = (req.query.year) ? String(Number(req.query.year)) + "-06-30" : currentFiscalEndYear + "-06-30";
     
-    var query = sierra.query("Select best_title,sierra_view.material_property_myuser.name,'o'||order_view.record_num||'a' AS order_record,user_defined_ocode3_myuser.name,round(((discount_amt/subtotal_amt)*paid_amt)+((shipping_amt/subtotal_amt)*paid_amt)+paid_amt,2)::text as amt_paid ,to_char(posted_date_gmt, 'YYYYMMDD')::text,replace(replace(replace(replace(replace(ocode1,'p','PERIODICAL'),'f','ELECTRONIC RES'),'l','MICROFILM'),'s','SERIAL'),'m','MONOGRAPH'),vendor_record_code,replace(replace(replace(replace(order_status_code,'g','SERIAL LIENED'),'f','SERIAL NO ENC'),'a','FULLY PAID'),'z','CANCELLED') " +   
+    var query = sierra.query("Select best_title,sierra_view.material_property_myuser.name,'o'||order_view.record_num||'a' AS order_record,user_defined_ocode3_myuser.name,round(((discount_amt/nullif(subtotal_amt,0))*paid_amt)+((shipping_amt/nullif(subtotal_amt,0))*paid_amt)+paid_amt,2)::text as amt_paid ,to_char(posted_date_gmt, 'YYYYMMDD')::text,replace(replace(replace(replace(replace(ocode1,'p','PERIODICAL'),'f','ELECTRONIC RES'),'l','MICROFILM'),'s','SERIAL'),'m','MONOGRAPH'),vendor_record_code,replace(replace(replace(replace(order_status_code,'g','SERIAL LIENED'),'f','SERIAL NO ENC'),'a','FULLY PAID'),'z','CANCELLED') " +   
     "From sierra_view.order_record_cmf " + 
 
     "Left Join sierra_view.order_view " +
@@ -841,7 +841,7 @@ router.get('/continuing-resources/electronic', Config.ensureAuthenticated, funct
     var queryStartDate = (req.query.year) ? String(Number(req.query.year) - 1) + "-07-01" : currentFiscalStartYear + "-07-01";
     var queryEndDate = (req.query.year) ? String(Number(req.query.year)) + "-06-30" : currentFiscalEndYear + "-06-30";
 
-    var query = sierra.query("Select best_title,sierra_view.material_property_myuser.name,'o'||order_view.record_num||'a' AS order_record,user_defined_ocode3_myuser.name,round(((discount_amt/subtotal_amt)*paid_amt)+((shipping_amt/subtotal_amt)*paid_amt)+paid_amt,2)::text as amt_paid ,to_char(posted_date_gmt, 'YYYYMMDD')::text,replace(replace(replace(replace(replace(ocode1,'p','PERIODICAL'),'f','ELECTRONIC RES'),'l','MICROFILM'),'s','SERIAL'),'m','MONOGRAPH'),vendor_record_code,replace(replace(replace(replace(order_status_code,'g','SERIAL LIENED'),'f','SERIAL NO ENC'),'a','FULLY PAID'),'z','CANCELLED') " +   
+    var query = sierra.query("Select best_title,sierra_view.material_property_myuser.name,'o'||order_view.record_num||'a' AS order_record,user_defined_ocode3_myuser.name,round(((discount_amt/nullif(subtotal_amt,0))*paid_amt)+((shipping_amt/nullif(subtotal_amt,0))*paid_amt)+paid_amt,2)::text as amt_paid ,to_char(posted_date_gmt, 'YYYYMMDD')::text,replace(replace(replace(replace(replace(ocode1,'p','PERIODICAL'),'f','ELECTRONIC RES'),'l','MICROFILM'),'s','SERIAL'),'m','MONOGRAPH'),vendor_record_code,replace(replace(replace(replace(order_status_code,'g','SERIAL LIENED'),'f','SERIAL NO ENC'),'a','FULLY PAID'),'z','CANCELLED') " +   
     "From sierra_view.order_record_cmf " + 
 
     "Left Join sierra_view.order_view " +
@@ -986,7 +986,7 @@ router.get('/continuing-resources/physical/:vendor', Config.ensureAuthenticated,
     var queryStartDate = (req.query.year) ? String(Number(req.query.year) - 1) + "-07-01" : currentFiscalStartYear + "-07-01";
     var queryEndDate = (req.query.year) ? String(Number(req.query.year)) + "-06-30" : currentFiscalEndYear + "-06-30";
 
-    var query = sierra.query("Select replace(Title,',','') as Title,'o'||order_view.record_num||'a' AS order_record,round(((discount_amt/subtotal_amt)*paid_amt)+((shipping_amt/subtotal_amt)*paid_amt)+paid_amt,2) as amt_paid ,to_char(posted_date_gmt, 'YYYYMMDD') as posted_date,replace(replace(replace(replace(replace(ocode1,'p','PERIODICAL'),'f','ELECTRONIC RES'),'l','MICROFILM'),'s','SERIAL'),'m','MONOGRAPH') as Material_Type,invoice_view.record_type_code||invoice_view.record_num||'a' as invoice_record,invoice_view.invoice_number_text,invoice_record_line.note as invoice_note " +
+    var query = sierra.query("Select replace(Title,',','') as Title,'o'||order_view.record_num||'a' AS order_record,round(((discount_amt/nullif(subtotal_amt,0))*paid_amt)+((shipping_amt/nullif(subtotal_amt,0))*paid_amt)+paid_amt,2) as amt_paid ,to_char(posted_date_gmt, 'YYYYMMDD') as posted_date,replace(replace(replace(replace(replace(ocode1,'p','PERIODICAL'),'f','ELECTRONIC RES'),'l','MICROFILM'),'s','SERIAL'),'m','MONOGRAPH') as Material_Type,invoice_view.record_type_code||invoice_view.record_num||'a' as invoice_record,invoice_view.invoice_number_text,invoice_record_line.note as invoice_note " +
     "From sierra_view.order_record_cmf " +
 
     "Left Join sierra_view.order_view " +
@@ -1055,7 +1055,7 @@ router.get('/continuing-resources/electronic/:vendor', Config.ensureAuthenticate
     var queryStartDate = (req.query.year) ? String(Number(req.query.year) - 1) + "-07-01" : currentFiscalStartYear + "-07-01";
     var queryEndDate = (req.query.year) ? String(Number(req.query.year)) + "-06-30" : currentFiscalEndYear + "-06-30";
     
-    var query = sierra.query("Select replace(Title,',','') as Title,'o'||order_view.record_num||'a' AS order_record,round(((discount_amt/subtotal_amt)*paid_amt)+((shipping_amt/subtotal_amt)*paid_amt)+paid_amt,2) as amt_paid ,to_char(posted_date_gmt, 'YYYYMMDD') as posted_date,replace(replace(replace(replace(replace(ocode1,'p','PERIODICAL'),'f','ELECTRONIC RES'),'l','MICROFILM'),'s','SERIAL'),'m','MONOGRAPH') as Material_Type,invoice_view.record_type_code||invoice_view.record_num||'a' as invoice_record,invoice_view.invoice_number_text,invoice_record_line.note as invoice_note " +
+    var query = sierra.query("Select replace(Title,',','') as Title,'o'||order_view.record_num||'a' AS order_record,round(((discount_amt/nullif(subtotal_amt,0))*paid_amt)+((shipping_amt/nullif(subtotal_amt,0))*paid_amt)+paid_amt,2) as amt_paid ,to_char(posted_date_gmt, 'YYYYMMDD') as posted_date,replace(replace(replace(replace(replace(ocode1,'p','PERIODICAL'),'f','ELECTRONIC RES'),'l','MICROFILM'),'s','SERIAL'),'m','MONOGRAPH') as Material_Type,invoice_view.record_type_code||invoice_view.record_num||'a' as invoice_record,invoice_view.invoice_number_text,invoice_record_line.note as invoice_note " +
     "From sierra_view.order_record_cmf " +
 
     "Left Join sierra_view.order_view " +
@@ -1122,7 +1122,7 @@ router.get('/continuing-resources/title/:order', Config.ensureAuthenticated, fun
     var view = (req.query.view) ? (req.query.view) : "table"
 
     var query = sierra.query("" +
-        "Select Title,sierra_view.material_property_myuser.name as MaterialTypeName,'o'||order_view.record_num||'a' AS order_record,user_defined_ocode3_myuser.name as ocode3,round(((discount_amt/subtotal_amt)*paid_amt)+((shipping_amt/subtotal_amt)*paid_amt)+paid_amt,2) as amt_paid ,to_char(posted_date_gmt, 'YYYYMMDD') as posted_date,replace(replace(ocode1,'p','PERIODICAL'),'f','ELECTRONIC RES'),vendor_record_code " +
+        "Select Title,sierra_view.material_property_myuser.name as MaterialTypeName,'o'||order_view.record_num||'a' AS order_record,user_defined_ocode3_myuser.name as ocode3,round(((discount_amt/nullif(subtotal_amt,0))*paid_amt)+((shipping_amt/nullif(subtotal_amt,0))*paid_amt)+paid_amt,2) as amt_paid ,to_char(posted_date_gmt, 'YYYYMMDD') as posted_date,replace(replace(ocode1,'p','PERIODICAL'),'f','ELECTRONIC RES'),vendor_record_code " +
         "From sierra_view.order_record_cmf " +
         
         "Left Join sierra_view.order_view " +
