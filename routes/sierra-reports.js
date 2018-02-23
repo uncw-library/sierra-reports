@@ -612,9 +612,6 @@ router.get('/continuing-resources/main', Config.ensureAuthenticated, function(re
                             "Left Join sierra_view.order_view " +
                             "ON sierra_view.order_view.record_id=sierra_view.order_record_cmf.order_record_id " +
                             
-                            "Left Join sierra_view.order_status_property_myuser " +
-                            "ON sierra_view.order_status_property_myuser.code=sierra_view.order_view.order_status_code " +
-                            
                             "LEFT JOIN sierra_view.invoice_record_line " +
                             "ON sierra_view.invoice_record_line.order_record_metadata_id=sierra_view.order_view.record_id " +
                             
