@@ -1,0 +1,6 @@
+deploy_app:
+  stage: deploy
+  image: tagip/rancher-cli
+  script:
+    - rancher --debug up -d --stack "sierra-reports"
+    - rancher --debug up -d --force-upgrade --pull --stack "sierra-reports" --confirm-upgrade app

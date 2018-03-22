@@ -57,7 +57,7 @@ router.get('/dashboard', Config.ensureAuthenticated, function(req, res, next){
   res.render('dashboard', {
     layout: 'layout',
     user: req.user.cn,
-    title: 'Dashboard',
+    title: 'Sierra Reports Dashboard',
     sites: sites
   });
 });
