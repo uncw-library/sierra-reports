@@ -3,7 +3,7 @@ deploy_app:
   image: tagip/rancher-cli
   variables:
     GIT_SSL_NO_VERIFY: "true"
-    CURL_CA_BUNDLE: "/etc/ssl/certs/ca-bundle.crt"
+    CURL_CA_BUNDLE: "/etc/ssl/certs/gd_bundle-g2-g1.crt"
   script:
     - rancher --debug up -d --stack "sierra-reports"
     - rancher --debug up -d --force-upgrade --pull --stack "sierra-reports" --confirm-upgrade app
