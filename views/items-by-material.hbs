@@ -1,0 +1,40 @@
+<script>
+    $(document).ready(function(){
+        $('#items-by-material').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                'pageLength', 'copy', 'csv', 'excel', 'pdf', 'print'
+            ]
+        });
+        $('.datepicker').datepicker();
+    });
+</script>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <h1>{{title}}</h1>
+    </div>
+</div>
+
+<div class="col-12">
+    <table id="items-by-material" class="table table-bordered">
+        <thead>
+            <th>Name</th>
+            <th>Count</th>
+        </thead>
+        <tbody>
+            {{#each result}}
+                <tr>
+                    <td>{{this.name}}</td>
+                    <td>{{this.count}}</td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <a href="/dashboard">Dashboard</a>
+    </div>
+</div>

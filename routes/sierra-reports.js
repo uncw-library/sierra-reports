@@ -1214,7 +1214,35 @@ router.get('/continuing-resources/title/:order', Config.ensureAuthenticated, fun
                 }
             }
         });
+});
 
+router.get('/items-by-material', (req, res, next) => {
+    var query = sierra.query("" +
+    "SELECT sierra_view.user_defined_bcode2_myuser.name, count(sierra_view.item_view.record_num) " +
+
+    "FROM sierra_view.bib_view " +
+    
+    "LEFT JOIN sierra_view.user_defined_bcode2_myuser " +
+    "ON sierra_view.user_defined_bcode2_myuser.code=sierra_view.bib_view.bcode2 " +
+    
+    "LEFT JOIN sierra_view.bib_record_item_record_link " +
+    "ON sierra_view.bib_view.id=sierra_view.bib_record_item_record_link.bib_record_id " +
+    
+    "LEFT JOIN sierra_view.item_view " +
+    "ON sierra_view.bib_record_item_record_link.item_record_id=sierra_view.item_view.id " +
+    
+    "WHERE  bcode3 ='-' " +
+    "and icode2='-' " +
+    "and item_status_code='-' " +
+    "group by sierra_view.user_defined_bcode2_myuser.name " +
+    "order by count(sierra_view.item_view.record_num)desc ", function(err, result) {
+        if (err) console.log(err);
+        res.render('items-by-material', {
+            layout: 'layout',
+            title: 'Items by Material',
+            result: result.rows
+        });
+    }); 
 });
 
 module.exports = router;

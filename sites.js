@@ -7,5 +7,6 @@ sites.push({siteName: 'Summon deletes report', siteURL: '/summon-deletes'});
 sites.push({siteName: 'Overdue Items Search List', siteURL: '/overdue-items'});
 sites.push({siteName: 'Item Status Report', siteURL: '/item-status'});
 sites.push({siteName: 'Continuing Resources', siteURL: '/continuing-resources'});
+sites.push({siteName: 'Items By Material', siteURL: '/items-by-material'});
 
 module.exports = sites;
