@@ -6,6 +6,8 @@ var Async = require ('async');
 var _ = require('lodash');
 var passport = require('passport');
 var sites = require('../sites');
+var fs = require('fs');
+var Chalk = require('chalk');
 
 //DBs
 var sierra = require('../dbs/sierra');
@@ -1217,32 +1219,75 @@ router.get('/continuing-resources/title/:order', Config.ensureAuthenticated, fun
 });
 
 router.get('/items-by-material', (req, res, next) => {
+    var query1 = sierra.query("" + 
+    "SELECT sierra_view.user_defined_bcode2_myuser.name, sierra_view.user_defined_bcode2_myuser.code " +
+
+    "FROM sierra_view.user_defined_bcode2_myuser ", function(err, result1) {
+        var query2 = sierra.query("" +
+        "SELECT  sierra_view.bib_view.bcode2, count(distinct sierra_view.item_view.record_num) " +
+
+        "FROM sierra_view.bib_view " +
+
+        "LEFT JOIN sierra_view.bib_record_item_record_link " +
+        "ON sierra_view.bib_view.id=sierra_view.bib_record_item_record_link.bib_record_id " +
+
+        "LEFT JOIN sierra_view.item_view " +
+        "ON sierra_view.bib_record_item_record_link.item_record_id=sierra_view.item_view.id " +
+
+        "WHERE  bcode3 ='-' " +
+        "and icode2='-' " +
+        "and item_status_code='-' " +
+        "group by sierra_view.bib_view.bcode2 " +
+        "order by count(sierra_view.item_view.record_num) desc", function(err, result2) {
+            var data = _.map(result1.rows, function(material) {
+                return _.extend(material, _.find(result2.rows, {bcode2: material.code}))
+            });
+            if (err) console.log(err);
+            res.render('items-by-material', {
+                layout: 'layout',
+                title: 'Items by Material',
+                result: data
+            });
+        }); 
+    });
+});
+
+router.get('/items-by-material/:code', (req, res, next) => {
     var query = sierra.query("" +
-    "SELECT sierra_view.user_defined_bcode2_myuser.name, count(sierra_view.item_view.record_num) " +
+    "SELECT DISTINCT 'i'||item_view.record_num||'a' as record_num " +
 
     "FROM sierra_view.bib_view " +
-    
-    "LEFT JOIN sierra_view.user_defined_bcode2_myuser " +
-    "ON sierra_view.user_defined_bcode2_myuser.code=sierra_view.bib_view.bcode2 " +
     
     "LEFT JOIN sierra_view.bib_record_item_record_link " +
     "ON sierra_view.bib_view.id=sierra_view.bib_record_item_record_link.bib_record_id " +
     
-    "LEFT JOIN sierra_view.item_view " +
+    "LEFT JOIN sierra_view.item_view " + 
     "ON sierra_view.bib_record_item_record_link.item_record_id=sierra_view.item_view.id " +
     
     "WHERE  bcode3 ='-' " +
-    "and icode2='-' " +
+    "and icode2='-' " + 
     "and item_status_code='-' " +
-    "group by sierra_view.user_defined_bcode2_myuser.name " +
-    "order by count(sierra_view.item_view.record_num)desc ", function(err, result) {
+
+    "and bcode2='"+ req.params.code +"' " +
+
+    "", function(err, result) {
         if (err) console.log(err);
-        res.render('items-by-material', {
-            layout: 'layout',
-            title: 'Items by Material',
-            result: result.rows
+
+        var itemRecordsString = '';
+        result.rows.forEach(item_record => {
+            itemRecordsString += `${item_record.record_num}\n`;
         });
-    }); 
+
+        // write the bib and item records to respective files
+        fs.writeFile("./public/downloads/item_records.txt", itemRecordsString, function(err) {
+            if (err) console.log(Chalk.red(err));
+            res.render('item-records-by-material', {
+                layout: 'layout',
+                title: 'Item List for ' + String(req.query.name).replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();}),
+                result: result.rows
+            });
+        });
+    });
 });
 
 module.exports = router;

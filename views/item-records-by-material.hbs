@@ -17,17 +17,21 @@
     </div>
 </div>
 
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <a href="/downloads/item_records.txt" download="item_records.txt" target="_blank"><button type="button" style="float:right;" class="btn btn-outline-info">Download</button></a>
+    </div>
+</div>
+
 <div class="col-12">
     <table id="items-by-material" class="table table-bordered">
         <thead>
-            <th>Name</th>
-            <th>Count</th>
+            <th>Item Record</th>
         </thead>
         <tbody>
             {{#each result}}
                 <tr>
-                    <td><a href='/items-by-material/{{this.bcode2}}?name={{this.name}}'>{{this.name}}</a></td>
-                    <td>{{formatNumber this.count}}</td>
+                    <td>{{this.record_num}}</a></td>
                 </tr>
             {{/each}}
         </tbody>

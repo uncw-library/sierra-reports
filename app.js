@@ -133,7 +133,7 @@ Handlebars.registerHelper('isChecked', function(checked){
 });
 
 Handlebars.registerHelper('formatNumber', function(num){
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return (num) ? num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "";
 });
 
 //Returns either 'physical' or 'electronic'
