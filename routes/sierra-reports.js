@@ -550,8 +550,8 @@ router.get('/item-status', Config.ensureAuthenticated, function(req, res, next){
     "checkout.due_gmt, " +
     "checkout.checkout_gmt, " +
     "item_view.last_checkin_gmt, " +
-    "item_view.last_checkout_gmt, " +
-    "record_metadata.record_last_updated_gmt " +
+    "item_view.last_checkout_gmt " + //, " +
+    //"record_metadata.record_last_updated_gmt " +
     "FROM sierra_view.item_view " +
     "LEFT JOIN sierra_view.bib_record_item_record_link " +
     "ON sierra_view.item_view.id=sierra_view.bib_record_item_record_link.item_record_id " +
@@ -564,10 +564,12 @@ router.get('/item-status', Config.ensureAuthenticated, function(req, res, next){
     "LEFT JOIN sierra_view.location " +
     "ON sierra_view.item_view.location_code = sierra_view.location.code " +
     "LEFT JOIN sierra_view.location_name " +
-    "ON sierra_view.location.id = sierra_view.location_name.location_id " +
-    "LEFT JOIN sierra_view.record_metadata " +
-    "ON sierra_view.item_view.record_num=sierra_view.record_metadata.record_num " +
-    "WHERE item_status_code = '"+ type +"' ";
+    "ON sierra_view.location.id = sierra_view.location_name.location_id ";
+    if (queryDate == 'record_metadata.record_last_updated_gmt') {
+        sql += "LEFT JOIN sierra_view.record_metadata " +
+        "ON sierra_view.item_view.record_num=sierra_view.record_metadata.record_num ";
+    }
+    sql += "WHERE item_status_code = '"+ type +"' ";
     sql += (queryDate) ? "AND to_char("+queryDate+", 'yyyymmdd') >= '" + startDate + "' " : ""; 
     sql += (queryDate) ? "AND to_char("+queryDate+", 'yyyymmdd') <= '" + endDate + "' " : "";
 
