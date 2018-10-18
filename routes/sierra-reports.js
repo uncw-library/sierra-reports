@@ -8,6 +8,7 @@ var passport = require('passport');
 var sites = require('../sites');
 var fs = require('fs');
 var Chalk = require('chalk');
+var request = require('request');
 
 //DBs
 var sierra = require('../dbs/sierra');
@@ -41,8 +42,18 @@ router.post('/login', function(req, res, next) {
     passport.authenticate('ldapauth', function(err, user, info) {
         if (err || !user) res.redirect('/login?failure=true&' + ((req.query.path) ? 'path=' + req.query.path : ''));
         else {
-          req.logIn(user, function(err) {
+          req.logIn(user, async function(err) {
             if (err) console.log(Chalk.red(err));
+            
+            // let's log the new session!
+            await request.post('https://track-login-api.libapps-staff.uncw.edu/api/v1/login', 
+	            { form: {
+    	            application:`Sierra Reports accessing ${req.query.path || 'an unknown report'}`,
+    	            username:`${req.body.username.toLowerCase()}`,
+                    thePasswordIsWildWings: 'yagotthatright' }
+                }
+            );
+
             res.redirect('/' + ((req.query.path) ? req.query.path : 'dashboard'));
           });
         }
