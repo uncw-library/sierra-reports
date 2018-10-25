@@ -102,7 +102,8 @@ Handlebars.registerHelper('formatMoney', function(decimalVal){
 });
 
 Handlebars.registerHelper('formatDate', function(date){
-  return (String(date).length == 8) ? (moment(date).format("YYYY-MM-DD")) : "No Date";
+  let newDate = (moment(date).format("YYYY-MM-DD")).toString();
+  return (newDate != "Invalid date") ? newDate : "No date"
 });
 Handlebars.registerHelper('formatDatePrev', function(date){
   return (moment(date).subtract(1, 'days').format("YYYY-MM-DD"));
