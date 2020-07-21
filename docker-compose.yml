@@ -9,6 +9,6 @@ services:
     environment:
       - NODE_ENV=development
     volumes:
-      - ./:/usr/src/
+      - ./app/:/usr/src/app/
     command: npm start
     restart: always
