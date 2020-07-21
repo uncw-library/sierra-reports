@@ -186,7 +186,7 @@ router.get('/fund-report', Config.ensureAuthenticated, function (req, res, next)
     Async.eachOf(result.rows, function (department, index, callback) {
       const queryStartDate = (req.query.year) ? String(Number(req.query.year) - 1) + '-07-01' : currentFiscalStartYear + '-07-01'
       const queryEndDate = (req.query.year) ? String(Number(req.query.year)) + '-06-30' : currentFiscalEndYear + '-06-30'
-      const queryString2 =`
+      const queryString2 = `
         SELECT
         sum(round(order_record_paid.paid_amount, 2)) AS paid_amt
         From sierra_view.order_record_cmf
@@ -301,10 +301,7 @@ router.get('/fund-report/detail/:id', Config.ensureAuthenticated, function (req,
           and order_view.record_num = ${row.record_number}
         `
         sierra.query(queryString2, function (err, result2) {
-
-          // ??? does this assignment happen, when there's no curly quotes around it ???
-          if (result2.rows && result2.rows[0]) result.rows[index].selector = result2.rows[0].field_content
-
+          if (result2.rows && result2.rows[0]) result.rows[index].selector = result2.rows[0].field_content // ??? does this assignment happen, when there's no curly quotes around it ???
           const queryString3 = `
             Select field_content
             FROM sierra_view.varfield_view
@@ -651,7 +648,7 @@ router.get('/continuing-resources/physical', Config.ensureAuthenticated, functio
   const currentFiscalEndYear = ((new Date()).getMonth() < 6) ? String(Number((new Date()).getFullYear())) : String(Number((new Date()).getFullYear()) + 1)
   const queryStartDate = (req.query.year) ? String(Number(req.query.year) - 1) + '-07-01' : currentFiscalStartYear + '-07-01'
   const queryEndDate = (req.query.year) ? String(Number(req.query.year)) + '-06-30' : currentFiscalEndYear + '-06-30'
-  
+
   /* in invoice_record_line.fund_code,  print subscriptions is 00027 and electronic is 00032 */
   const queryString = `
     Select best_title,
@@ -968,7 +965,7 @@ router.get('/continuing-resources/electronic/:vendor', Config.ensureAuthenticate
   const currentFiscalEndYear = ((new Date()).getMonth() < 6) ? String(Number((new Date()).getFullYear())) : String(Number((new Date()).getFullYear()) + 1)
   const queryStartDate = (req.query.year) ? String(Number(req.query.year) - 1) + '-07-01' : currentFiscalStartYear + '-07-01'
   const queryEndDate = (req.query.year) ? String(Number(req.query.year)) + '-06-30' : currentFiscalEndYear + '-06-30'
-  
+
   // is there an error at the paranthized WHERE ??
   const queryString = `
     SELECT replace(Title,',','') as Title, 'o'||order_view.record_num||'a' AS order_record, round(((discount_amt/nullif(subtotal_amt,0))*paid_amt)+((shipping_amt/nullif(subtotal_amt,0))*paid_amt)+paid_amt,2) as amt_paid, to_char(posted_date_gmt, 'YYYYMMDD') as posted_date, replace(replace(replace(replace(replace(ocode1,'p','PERIODICAL'), 'f', 'ELECTRONIC RES'), 'l', 'MICROFILM'), 's', 'SERIAL'), 'm', 'MONOGRAPH') as Material_Type, invoice_view.record_type_code||invoice_view.record_num||'a' as invoice_record, invoice_view.invoice_number_text, invoice_record_line.note as invoice_note
@@ -1109,7 +1106,7 @@ router.get('/items-by-material', (req, res, next) => {
     FROM sierra_view.user_defined_bcode2_myuser   
   `
   sierra.query(queryString1, function (err, result1) {
-    queryString2 = `
+    const queryString2 = `
       SELECT sierra_view.bib_view.bcode2, count(distinct sierra_view.item_view.record_num)
       FROM sierra_view.bib_view
       LEFT JOIN sierra_view.bib_record_item_record_link
