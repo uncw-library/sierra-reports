@@ -968,7 +968,14 @@ router.get('/continuing-resources/electronic/:vendor', Config.ensureAuthenticate
 
   // is there an error at the paranthized WHERE ??
   const queryString = `
-    SELECT replace(Title,',','') as Title, 'o'||order_view.record_num||'a' AS order_record, round(((discount_amt/nullif(subtotal_amt,0))*paid_amt)+((shipping_amt/nullif(subtotal_amt,0))*paid_amt)+paid_amt,2) as amt_paid, to_char(posted_date_gmt, 'YYYYMMDD') as posted_date, replace(replace(replace(replace(replace(ocode1,'p','PERIODICAL'), 'f', 'ELECTRONIC RES'), 'l', 'MICROFILM'), 's', 'SERIAL'), 'm', 'MONOGRAPH') as Material_Type, invoice_view.record_type_code||invoice_view.record_num||'a' as invoice_record, invoice_view.invoice_number_text, invoice_record_line.note as invoice_note
+    SELECT replace(Title,',','') as Title,
+    'o'||order_view.record_num||'a' AS order_record,
+    round(((discount_amt/nullif(subtotal_amt,0))*paid_amt)+((shipping_amt/nullif(subtotal_amt,0))*paid_amt)+paid_amt,2) as amt_paid,
+    to_char(posted_date_gmt, 'YYYYMMDD') as posted_date,
+    replace(replace(replace(replace(replace(ocode1, 'p', 'PERIODICAL'), 'f', 'ELECTRONIC RES'), 'l', 'MICROFILM'), 's', 'SERIAL'), 'm', 'MONOGRAPH') as Material_Type,
+    invoice_view.record_type_code||invoice_view.record_num||'a' as invoice_record,
+    invoice_view.invoice_number_text,
+    invoice_record_line.note as invoice_note
     FROM sierra_view.order_record_cmf
     LEFT JOIN sierra_view.order_view
     ON sierra_view.order_view.record_id=sierra_view.order_record_cmf.order_record_id
@@ -1026,7 +1033,14 @@ router.get('/continuing-resources/title/:order', Config.ensureAuthenticated, fun
   const orderRecord = String(req.params.order).substring(1, req.params.order.length - 1)
   const view = (req.query.view) ? (req.query.view) : 'table'
   const queryString = `
-    SELECT Title, sierra_view.material_property_myuser.name as MaterialTypeName, 'o'||order_view.record_num||'a' AS order_record, user_defined_ocode3_myuser.name as ocode3, round(((discount_amt/nullif(subtotal_amt,0))*paid_amt)+((shipping_amt/nullif(subtotal_amt,0))*paid_amt)+paid_amt,2) as amt_paid, to_char(posted_date_gmt, 'YYYYMMDD') as posted_date, replace(replace(ocode1,'p','PERIODICAL'), 'f', 'ELECTRONIC RES'), vendor_record_code
+    SELECT Title,
+    sierra_view.material_property_myuser.name as MaterialTypeName,
+    'o'||order_view.record_num||'a' AS order_record,
+    user_defined_ocode3_myuser.name as ocode3,
+    round(((discount_amt/nullif(subtotal_amt,0))*paid_amt)+((shipping_amt/nullif(subtotal_amt,0))*paid_amt)+paid_amt,2) as amt_paid,
+    to_char(posted_date_gmt, 'YYYYMMDD') as posted_date,
+    replace(replace(ocode1, 'p', 'PERIODICAL'), 'f', 'ELECTRONIC RES'),
+    vendor_record_code
     FROM sierra_view.order_record_cmf
     LEFT JOIN sierra_view.order_view
     ON sierra_view.order_view.record_id=sierra_view.order_record_cmf.order_record_id
