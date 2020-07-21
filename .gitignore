@@ -84,4 +84,6 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+app/public/downloads
+package-lock.json
 .env
