@@ -10,5 +10,5 @@ services:
       - NODE_ENV=development
     volumes:
       - ./app/:/usr/src/app/
-    command: npm start
+    command: npm run dev
     restart: always
