@@ -16,6 +16,7 @@ const client = new pg.Client({
 
 client.connect()
 
+// Connect to Sierra using a pool
 const pool = new Pool({
   user: process.env.SIERRA_USER,
   password: process.env.SIERRA_PASS,

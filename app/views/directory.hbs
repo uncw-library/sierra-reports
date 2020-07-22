@@ -1,0 +1,13 @@
+<div class="row justify-content-center">
+  <h1>Sierra Reports</h1>
+</div>
+
+<div class="row justify-content-center" id="report-list">
+    <div class="col-auto">
+        <div class="list-group">
+            {{#each sites}}
+                <a class="list-group-item list-group-item-action report-link" href="{{this.siteURL}}">{{this.siteName}}</a>
+            {{/each}}
+        </div>
+    </div>
+</div>

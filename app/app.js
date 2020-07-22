@@ -1,16 +1,16 @@
 const express = require('express')
-const path = require('path')
-const favicon = require('serve-favicon')
-const logger = require('morgan')
-const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
-const session = require('cookie-session')
+const cookieParser = require('cookie-parser')
+const createError = require('http-errors')
+const favicon = require('serve-favicon')
 const helmet = require('helmet')
 const LdapStrategy = require('passport-ldapauth').Strategy
-const moment = require('moment')
+const logger = require('morgan')
 const passport = require('passport')
+const path = require('path')
+const session = require('cookie-session')
 
-const router = require('./routes/sierra-reports')
+const router = require('./routes')
 const opts = require('./ldap')
 require('./handlebars')
 
@@ -28,6 +28,7 @@ app.use(session({
 app.use(logger('dev'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
+app.use(express.static(path.join(__dirname, 'public')))
 
 passport.use(new LdapStrategy(opts))
 app.use(passport.initialize())
@@ -39,8 +40,6 @@ passport.deserializeUser(function (user, done) {
   done(null, user)
 })
 
-
-app.use(express.static(path.join(__dirname, 'public')))
 app.use('/', router)
 
 /*

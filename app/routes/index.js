@@ -1,55 +1,47 @@
 const express = require('express')
-const router = express.Router()
 const moment = require('moment')
-const Config = require('../config')
 const Async = require('async')
 const _ = require('lodash')
 const passport = require('passport')
+const multer = require('multer')
 const sites = require('../sites')
 const fs = require('fs')
 const Chalk = require('chalk')
 
+const router = express.Router()
+
 const sierra = require('../dbs/sierra')
+const multerInst = multer({ dest: './app/public/uploads/' })
+const controller = require('../controllers/controller')
 
 router.get('/', function (req, res, next) {
-  res.redirect('/login')
+  if (!req.isAuthenticated()) { return res.redirect('/login') }
+  res.render('directory', {
+    layout: 'layout',
+    loggedIn: true,
+    sites: sites
+  })
 })
 
 router.get('/login', function (req, res, next) {
   res.render('login', {
     layout: 'layout',
-    title: '--- Login ---',
-    failure: (req.query.failure) // Failed login attempt
+    failure: (req.query.failure),
+    loggedIn: false
   })
 })
 
-router.post('/login', function (req, res, next) {
-  passport.authenticate('ldapauth', function (err, user, info) {
-    if (err || !user) res.redirect('/login?failure=true&' + ((req.query.path) ? 'path=' + req.query.path : ''))
-    else {
-      req.logIn(user, async function (err) {
-        if (err) console.log(Chalk.red(err))
-        res.redirect('/' + ((req.query.path) ? req.query.path : 'dashboard'))
-      })
-    }
-  })(req, res, next)
+router.post('/login', passport.authenticate('ldapauth', { failureRedirect: '/login?failure=true' }), async (req, res, next) => {
+  res.redirect('/')
 })
 
-router.get('/logout', function (req, res) {
+router.get('/logout', function (req, res, next) {
   req.logout()
   res.redirect('/login')
 })
 
-router.get('/dashboard', Config.ensureAuthenticated, function (req, res, next) {
-  res.render('dashboard', {
-    layout: 'layout',
-    user: req.user.cn,
-    title: 'Sierra Reports',
-    sites: sites
-  })
-})
-
-router.get('/duplicate-patrons', Config.ensureAuthenticated, function (req, res, next) {
+router.get('/duplicate-patrons', function (req, res, next) {
+  if (!req.isAuthenticated()) { return res.redirect('/login') }
   const queryString1 = `
     SELECT  e.field_content
     FROM sierra_view.patron_record p
@@ -92,7 +84,8 @@ router.get('/duplicate-patrons', Config.ensureAuthenticated, function (req, res,
   })
 })
 
-router.get('/price-list', Config.ensureAuthenticated, function (req, res, next) {
+router.get('/price-list', function (req, res, next) {
+  if (!req.isAuthenticated()) { return res.redirect('/login') }
   const startDate = (req.query.startDate) ? moment(req.query.startDate).format('YYYYMMDD') : moment().subtract(7, 'days').format('YYYYMMDD')
   const endDate = (req.query.endDate) ? moment(req.query.endDate).format('YYYYMMDD') : moment().subtract(1, 'days').format('YYYYMMDD')
   const queryString = `
@@ -150,7 +143,8 @@ router.get('/price-list', Config.ensureAuthenticated, function (req, res, next) 
   })
 })
 
-router.get('/fund-report', Config.ensureAuthenticated, function (req, res, next) {
+router.get('/fund-report', function (req, res, next) {
+  if (!req.isAuthenticated()) { return res.redirect('/login') }
   const currentFiscalStartYear = ((new Date()).getMonth() < 6) ? String(Number((new Date()).getFullYear()) - 1) : String(Number((new Date()).getFullYear()))
   const currentFiscalEndYear = ((new Date()).getMonth() < 6) ? String(Number((new Date()).getFullYear())) : String(Number((new Date()).getFullYear()) + 1)
   const queryString1 = `
@@ -234,7 +228,8 @@ router.get('/fund-report', Config.ensureAuthenticated, function (req, res, next)
   })
 })
 
-router.get('/fund-report/detail/:id', Config.ensureAuthenticated, function (req, res, next) {
+router.get('/fund-report/detail/:id', function (req, res, next) {
+  if (!req.isAuthenticated()) { return res.redirect('/login') }
   const currentFiscalStartYear = ((new Date()).getMonth() < 6) ? String(Number((new Date()).getFullYear()) - 1) : String(Number((new Date()).getFullYear()))
   const currentFiscalEndYear = ((new Date()).getMonth() < 6) ? String(Number((new Date()).getFullYear())) : String(Number((new Date()).getFullYear()) + 1)
 
@@ -378,7 +373,8 @@ router.get('/fund-report/detail/:id', Config.ensureAuthenticated, function (req,
   })
 })
 
-router.get('/summon-deletes', Config.ensureAuthenticated, function (req, res, next) {
+router.get('/summon-deletes', function (req, res, next) {
+  if (!req.isAuthenticated()) { return res.redirect('/login') }
   const startDate = (req.query.startDate) ? moment(req.query.startDate).format('YYYYMMDD') : moment().subtract(10, 'days').format('YYYYMMDD')
   const endDate = (req.query.endDate) ? moment(req.query.endDate).format('YYYYMMDD') : moment().format('YYYYMMDD')
   const queryString = `
@@ -402,7 +398,8 @@ router.get('/summon-deletes', Config.ensureAuthenticated, function (req, res, ne
   })
 })
 
-router.get('/summon-deletes/:date', Config.ensureAuthenticated, function (req, res, next) {
+router.get('/summon-deletes/:date', function (req, res, next) {
+  if (!req.isAuthenticated()) { return res.redirect('/login') }
   const dateToUse = moment(req.params.date, 'YYYY-MM-DD')
   const startDate = moment(dateToUse).format('YYYYMMDD')
   const endDate = moment(dateToUse).add(1, 'days').format('YYYYMMDD')
@@ -433,7 +430,8 @@ router.get('/summon-deletes/:date', Config.ensureAuthenticated, function (req, r
   })
 })
 
-router.get('/overdue-items', Config.ensureAuthenticated, function (req, res, next) {
+router.get('/overdue-items', function (req, res, next) {
+  if (!req.isAuthenticated()) { return res.redirect('/login') }
   const startDate = (req.query.startDate) ? moment(req.query.startDate).format('YYYYMMDD') : moment().subtract(7, 'days').format('YYYYMMDD')
   const endDate = (req.query.endDate) ? moment(req.query.endDate).format('YYYYMMDD') : moment().subtract(1, 'days').format('YYYYMMDD')
   const queryString = `
@@ -476,7 +474,8 @@ router.get('/overdue-items', Config.ensureAuthenticated, function (req, res, nex
   })
 })
 
-router.get('/item-status', Config.ensureAuthenticated, function (req, res, next) {
+router.get('/item-status', function (req, res, next) {
+  if (!req.isAuthenticated()) { return res.redirect('/login') }
   const startDate = (req.query.startDate) ? moment(req.query.startDate).format('YYYYMMDD') : moment().subtract(7, 'days').format('YYYYMMDD')
   const endDate = (req.query.endDate) ? moment(req.query.endDate).format('YYYYMMDD') : moment().subtract(1, 'days').format('YYYYMMDD')
 
@@ -543,12 +542,14 @@ router.get('/item-status', Config.ensureAuthenticated, function (req, res, next)
   })
 })
 
-router.get('/continuing-resources', Config.ensureAuthenticated, function (req, res, next) {
+router.get('/continuing-resources', function (req, res, next) {
+  if (!req.isAuthenticated()) { return res.redirect('/login') }
   res.redirect('/continuing-resources/main')
 })
 
-router.get('/continuing-resources/main', Config.ensureAuthenticated, function (req, res, next) {
+router.get('/continuing-resources/main', function (req, res, next) {
   // show the UNCW Subscription overview
+  if (!req.isAuthenticated()) { return res.redirect('/login') }
   const queryString1 = `
     SELECT
     fund_master_id,
@@ -631,7 +632,8 @@ router.get('/continuing-resources/main', Config.ensureAuthenticated, function (r
   })
 })
 
-router.get('/continuing-resources/physical', Config.ensureAuthenticated, function (req, res, next) {
+router.get('/continuing-resources/physical', function (req, res, next) {
+  if (!req.isAuthenticated()) { return res.redirect('/login') }
   const currentFiscalStartYear = ((new Date()).getMonth() < 6) ? String(Number((new Date()).getFullYear()) - 1) : String(Number((new Date()).getFullYear()))
   const currentFiscalEndYear = ((new Date()).getMonth() < 6) ? String(Number((new Date()).getFullYear())) : String(Number((new Date()).getFullYear()) + 1)
   const queryStartDate = (req.query.year) ? String(Number(req.query.year) - 1) + '-07-01' : currentFiscalStartYear + '-07-01'
@@ -753,7 +755,8 @@ router.get('/continuing-resources/physical', Config.ensureAuthenticated, functio
   })
 })
 
-router.get('/continuing-resources/electronic', Config.ensureAuthenticated, function (req, res, next) {
+router.get('/continuing-resources/electronic', function (req, res, next) {
+  if (!req.isAuthenticated()) { return res.redirect('/login') }
   const currentFiscalStartYear = ((new Date()).getMonth() < 6) ? String(Number((new Date()).getFullYear()) - 1) : String(Number((new Date()).getFullYear()))
   const currentFiscalEndYear = ((new Date()).getMonth() < 6) ? String(Number((new Date()).getFullYear())) : String(Number((new Date()).getFullYear()) + 1)
   const queryStartDate = (req.query.year) ? String(Number(req.query.year) - 1) + '-07-01' : currentFiscalStartYear + '-07-01'
@@ -878,7 +881,8 @@ router.get('/continuing-resources/electronic', Config.ensureAuthenticated, funct
   })
 })
 
-router.get('/continuing-resources/physical/:vendor', Config.ensureAuthenticated, function (req, res, next) {
+router.get('/continuing-resources/physical/:vendor', function (req, res, next) {
+  if (!req.isAuthenticated()) { return res.redirect('/login') }
   const vendor = req.params.vendor
   const currentFiscalStartYear = ((new Date()).getMonth() < 6) ? String(Number((new Date()).getFullYear()) - 1) : String(Number((new Date()).getFullYear()))
   const currentFiscalEndYear = ((new Date()).getMonth() < 6) ? String(Number((new Date()).getFullYear())) : String(Number((new Date()).getFullYear()) + 1)
@@ -947,7 +951,8 @@ router.get('/continuing-resources/physical/:vendor', Config.ensureAuthenticated,
   })
 })
 
-router.get('/continuing-resources/electronic/:vendor', Config.ensureAuthenticated, function (req, res, next) {
+router.get('/continuing-resources/electronic/:vendor', function (req, res, next) {
+  if (!req.isAuthenticated()) { return res.redirect('/login') }
   const vendor = req.params.vendor
   const currentFiscalStartYear = ((new Date()).getMonth() < 6) ? String(Number((new Date()).getFullYear()) - 1) : String(Number((new Date()).getFullYear()))
   const currentFiscalEndYear = ((new Date()).getMonth() < 6) ? String(Number((new Date()).getFullYear())) : String(Number((new Date()).getFullYear()) + 1)
@@ -1017,7 +1022,8 @@ router.get('/continuing-resources/electronic/:vendor', Config.ensureAuthenticate
   })
 })
 
-router.get('/continuing-resources/title/:order', Config.ensureAuthenticated, function (req, res, next) {
+router.get('/continuing-resources/title/:order', function (req, res, next) {
+  if (!req.isAuthenticated()) { return res.redirect('/login') }
   const orderRecord = String(req.params.order).substring(1, req.params.order.length - 1)
   const view = (req.query.view) ? (req.query.view) : 'table'
   const queryString = `
@@ -1103,6 +1109,7 @@ router.get('/continuing-resources/title/:order', Config.ensureAuthenticated, fun
 })
 
 router.get('/items-by-material', (req, res, next) => {
+  if (!req.isAuthenticated()) { return res.redirect('/login') }
   const queryString1 = `
     SELECT sierra_view.user_defined_bcode2_myuser.name, sierra_view.user_defined_bcode2_myuser.code
     FROM sierra_view.user_defined_bcode2_myuser   
@@ -1135,7 +1142,8 @@ router.get('/items-by-material', (req, res, next) => {
   })
 })
 
-router.get('/items-by-material/:code', (req, res, next) => {
+router.get('/items-by-material/:code', function (req, res, next) {
+  if (!req.isAuthenticated()) { return res.redirect('/login') }
   const queryString = `
     SELECT DISTINCT 'i'||item_view.record_num||'a' as record_num
     FROM sierra_view.bib_view
@@ -1156,8 +1164,7 @@ router.get('/items-by-material/:code', (req, res, next) => {
       itemRecordsString += `${itemRecord.record_num}\n`
     })
 
-    // write the bib and item records to respective files
-    fs.writeFile('./public/downloads/item_records.txt', itemRecordsString, function (err) {
+    fs.writeFile('./app/public/downloads/item_records.txt', itemRecordsString, function (err) {
       if (err) console.log(Chalk.red(err))
       res.render('item-records-by-material', {
         layout: 'layout',
@@ -1166,6 +1173,59 @@ router.get('/items-by-material/:code', (req, res, next) => {
       })
     })
   })
+})
+
+router.get('/barcode-to-oclc-item', function (req, res, next) {
+  if (!req.isAuthenticated()) { return res.redirect('/login') }
+  res.render(
+    'barcode', {
+      layout: 'layout',
+      loggedIn: true
+  })
+})
+
+router.post('/barcode-to-oclc-item', multerInst.single('barcodeFile'), function (req, res, next) {
+  const queryType = 'barcodeToOclcItem'
+  if (!req.isAuthenticated()) { return res.redirect('/login') }
+  if (!req.file) {
+    return res.render(
+      'barcode', {
+        layout: 'layout',
+        warning: 'Please select a file',
+        loggedIn: true
+      }
+    )
+  }
+  controller.search(req.file.filename, req.file.originalname, queryType)
+    .then(newFilePath => res.download(newFilePath))
+    .catch(next)
+})
+
+router.get('/oclc-to-bib', function (req, res, next) {
+  if (!req.isAuthenticated()) { return res.redirect('/login') }
+  res.render(
+    'oclcToBib', {
+      layout: 'layout',
+      loggedIn: true
+    }
+  )
+})
+
+router.post('/oclc-to-bib', multerInst.single('oclcFile'), function (req, res, next) {
+  const queryType = 'oclcToBib'
+  if (!req.isAuthenticated()) { return res.redirect('/login') }
+  if (!req.file) {
+    return res.render(
+      'oclcToBib', {
+        layout: 'layout',
+        warning: 'Please select a file',
+        loggedIn: true
+      }
+    )
+  }
+  controller.search(req.file.filename, req.file.originalname, queryType)
+    .then(newFilePath => res.download(newFilePath))
+    .catch(next)
 })
 
 module.exports = router
