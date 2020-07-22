@@ -8,7 +8,6 @@ const passport = require('passport')
 const sites = require('../sites')
 const fs = require('fs')
 const Chalk = require('chalk')
-const request = require('request')
 
 const sierra = require('../dbs/sierra')
 
@@ -30,17 +29,6 @@ router.post('/login', function (req, res, next) {
     else {
       req.logIn(user, async function (err) {
         if (err) console.log(Chalk.red(err))
-
-        // let's log the new session!
-        await request.post('https://track-login-api.libapps-staff.uncw.edu/api/v1/login',
-          {
-            form: {
-              application: `Sierra Reports accessing ${req.query.path || 'an unknown report'}`,
-              username: `${req.body.username.toLowerCase()}`,
-              thePasswordIsWildWings: 'yagotthatright'
-            }
-          }
-        )
         res.redirect('/' + ((req.query.path) ? req.query.path : 'dashboard'))
       })
     }
