@@ -10,8 +10,7 @@ const client = new pg.Client({
   host: 'sierra-db.uncw.edu',
   ssl: {
     rejectUnauthorized: false
-  },
-
+  }
 })
 
 client.connect()
@@ -30,7 +29,6 @@ const pool = new Pool({
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 36000
 })
-
 
 module.exports = {
   client,

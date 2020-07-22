@@ -6,7 +6,6 @@ const passport = require('passport')
 const multer = require('multer')
 const sites = require('../sites')
 const fs = require('fs')
-const Chalk = require('chalk')
 
 const router = express.Router()
 
@@ -204,7 +203,6 @@ router.get('/fund-report', function (req, res, next) {
       })
     }, function (err, paid_amt_sum) {
       if (err) console.log(err)
-      console.log('CALLBACK')
       // Create an array of years, 2012 to present
       const years = []
       const startYear = 2012
@@ -1165,7 +1163,7 @@ router.get('/items-by-material/:code', function (req, res, next) {
     })
 
     fs.writeFile('./app/public/downloads/item_records.txt', itemRecordsString, function (err) {
-      if (err) console.log(Chalk.red(err))
+      if (err) console.log(err)
       res.render('item-records-by-material', {
         layout: 'layout',
         title: 'Item List for ' + String(req.query.name).replace(/\w\S*/g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase() }),

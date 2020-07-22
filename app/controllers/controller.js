@@ -5,8 +5,8 @@ const path = require('path')
 const db = require('../dbs/sierra')
 
 async function search (uploadedFile, originalFilename, queryType, next) {
-  const sourceItems = await parseFile(uploadedFile, next)  // extract sourceItems from uploaded file
-  fs.unlink('./app/public/uploads/' + uploadedFile)  // delete uploaded file
+  const sourceItems = await parseFile(uploadedFile, next) // extract sourceItems from uploaded file
+  fs.unlink('./app/public/uploads/' + uploadedFile) // delete uploaded file
   const results = await runQuery(sourceItems, queryType, next)
   const newFilepath = await writeCSV(results, originalFilename, next)
   return await newFilepath
@@ -37,18 +37,18 @@ async function runQuery (sourceItems, queryType, next) {
     .catch(next)
 }
 
-function makeQuerystring(sourceItems, queryType) {
-  if (queryType === 'oclcToBib') { 
-    return makeOCLCQuerystring(sourceItems) 
-  } else if (queryType = 'barcodeToOclcItem') {
+function makeQuerystring (sourceItems, queryType) {
+  if (queryType === 'oclcToBib') {
+    return makeOCLCQuerystring(sourceItems)
+  } else if (queryType === 'barcodeToOclcItem') {
     return makeBarcodeQuerystring(sourceItems)
-  }  
+  }
 }
 
 function makeOCLCQuerystring (sourceItems) {
   // using parameterized queries to prevent sql injection
   // https://node-postgres.com/features/queries
-  const params = sourceItems.map((item, idx) => '$' + (idx+1))
+  const params = sourceItems.map((item, idx) => '$' + (idx + 1))
   const queryString = `
     SELECT 'b'||varfield_view.record_num||'a' as bib,field_content as oclc
     FROM sierra_view.bib_view
@@ -65,7 +65,7 @@ function makeOCLCQuerystring (sourceItems) {
 function makeBarcodeQuerystring (sourceItems) {
   // using parameterized queries to prevent sql injection
   // https://node-postgres.com/features/queries
-  const params = sourceItems.map((item, idx) => '$' + (idx+1))
+  const params = sourceItems.map((item, idx) => '$' + (idx + 1))
   const queryString = `
     SELECT 'b'||bib_view.record_num||'a' AS bib_record_number, 'i'||item_view.record_num||'a' as item_record_number, item_record_property.barcode AS barcode
     FROM sierra_view.item_record_property
@@ -89,17 +89,17 @@ async function writeCSV (results, originalFilename, next) {
     header: header
   })
   return await writer.writeRecords(results)
-    .then(() => outputPath)  // return the outputPath to the previous function
+    .then(() => outputPath) // return the outputPath to the previous function
     .catch(next)
 }
 
-function makeHeader(results) {
+function makeHeader (results) {
   // grabs the keys of the first item in array "results"
   // and converts it into the expected header format.
   // accepts an arbitrary number of keys in the first item
   // because 'headers' can be length 2 or 3 or 20.
-  let header = new Array()
-  Object.keys(results[0]).forEach(item => header.push({id: item, title: item}))
+  const header = []
+  Object.keys(results[0]).forEach(item => header.push({ id: item, title: item }))
   return header
 }
 
