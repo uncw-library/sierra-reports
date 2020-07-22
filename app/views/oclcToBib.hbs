@@ -2,7 +2,7 @@
   $(document).ready(function(){
     $('.custom-file-input').on('change',function(){
       var fileName = $(this).val().replace(/^.*[\\\/]/, '');
-      $('.custom-file-label').html(fileName);
+      $('.custom-file-control').html(fileName);
     });
   });
 </script>
@@ -23,9 +23,9 @@
     <div class="alert alert-danger" role="alert">{{{warning}}}</div>
     {{/if}}
     <form action="#" method="POST" enctype="multipart/form-data">
-      <div class="custom-file" id="customFile">
+      <div class="input-group mb-3">
         <input type="file" class="custom-file-input" id="oclcFile" name="oclcFile" accept=".txt">
-        <label class="custom-file-label" for="customFile">Choose file</label>
+        <span class="custom-file-control pr-3" style="white-space: nowrap;">Select file... </span>
       </div>
       <div class="row justify-content-center">
         <div class="col-auto">
