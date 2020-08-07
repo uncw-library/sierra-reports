@@ -7,7 +7,14 @@ const db = require('../dbs/sierra')
 async function search (uploadedFile, originalFilename, queryType, next) {
   const sourceItems = await parseFile(uploadedFile, next) // extract sourceItems from uploaded file
   fs.unlink('./app/public/uploads/' + uploadedFile) // delete uploaded file
-  const results = await runQuery(sourceItems, queryType, next)
+  let results = await runQuery(sourceItems, queryType, next)
+  if (queryType === 'oclcToBib') {
+    const missedOclcs = findMissedOclcs(sourceItems, results)
+    results = appendMissedOclcs(results, missedOclcs)
+  } else if (queryType === 'barcodeToOclcItem') {
+    const missedBarcodes = findMissedBarcodes(sourceItems, results)
+    results = appendMissedBarcodes(results, missedBarcodes)
+  }
   const newFilepath = await writeCSV(results, originalFilename, next)
   return await newFilepath
 }
@@ -78,6 +85,49 @@ function makeBarcodeQuerystring (sourceItems) {
     WHERE item_record_property.barcode IN (${params})
     `
   return queryString
+}
+
+function findMissedOclcs (sourceItems, results) {
+  // we want to inform the user of oclcs that did not match to a bib number
+  // here we're identifying those missed oclcs
+  const sourceSet = new Set(sourceItems)
+  const resultSet = new Set(results.map(x => x.oclc))
+  return difference(sourceSet, resultSet)
+}
+
+function appendMissedOclcs (results, missedOclcs) {
+  // here we add the notfound oclcs to the results as {'bib': 'Not Found', 'oclc': uploaded oclc number}
+  let resultsPlusMissed = results
+  for (let missed of missedOclcs.values()) {
+    resultsPlusMissed.push({'bib': 'Not Found', 'oclc': missed})
+  }
+  return resultsPlusMissed
+}
+
+function findMissedBarcodes (sourceItems, results) {
+  // here we're identifying those missed barcodes
+  const sourceSet = new Set(sourceItems)
+  const resultSet = new Set(results.map(x => x.barcode))
+  return difference(sourceSet, resultSet)
+}
+
+function appendMissedBarcodes (results, missedBarcodes) {
+  // here we add the notfound barcodes to the results
+  let resultsPlusMissed = results
+  for (let missed of missedBarcodes.values()) {
+    resultsPlusMissed.push({'bib_record_number': 'Not Found', 'item_record_number': 'Not Found', 'barcode': missed})
+  }
+  return resultsPlusMissed  
+
+}
+
+function difference(setA, setB) {
+  // here we find the difference between the uploaded oclcs and the found oclcs
+  let difference = new Set(setA)
+  for (let elem of setB) {
+    difference.delete(elem)
+  }
+  return difference
 }
 
 async function writeCSV (results, originalFilename, next) {
