@@ -4,7 +4,6 @@ const Async = require('async')
 const _ = require('lodash')
 const passport = require('passport')
 const multer = require('multer')
-const sites = require('../sites')
 const fs = require('fs')
 
 const router = express.Router()
@@ -18,7 +17,6 @@ router.get('/', function (req, res, next) {
   res.render('directory', {
     layout: 'layout',
     loggedIn: true,
-    sites: sites
   })
 })
 
