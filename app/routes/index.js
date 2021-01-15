@@ -16,7 +16,7 @@ router.get('/', function (req, res, next) {
   if (!req.isAuthenticated()) { return res.redirect('/login') }
   res.render('directory', {
     layout: 'layout',
-    loggedIn: true,
+    loggedIn: true
   })
 })
 
@@ -1177,7 +1177,7 @@ router.get('/barcode-to-oclc-item', function (req, res, next) {
     'barcode', {
       layout: 'layout',
       loggedIn: true
-  })
+    })
 })
 
 router.post('/barcode-to-oclc-item', multerInst.single('barcodeFile'), function (req, res, next) {

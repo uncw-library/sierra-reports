@@ -97,9 +97,9 @@ function findMissedOclcs (sourceItems, results) {
 
 function appendMissedOclcs (results, missedOclcs) {
   // here we add the notfound oclcs to the results as {'bib': 'Not Found', 'oclc': uploaded oclc number}
-  let resultsPlusMissed = results
-  for (let missed of missedOclcs.values()) {
-    resultsPlusMissed.push({'bib': 'Not Found', 'oclc': missed})
+  const resultsPlusMissed = results
+  for (const missed of missedOclcs.values()) {
+    resultsPlusMissed.push({ bib: 'Not Found', oclc: missed })
   }
   return resultsPlusMissed
 }
@@ -113,18 +113,17 @@ function findMissedBarcodes (sourceItems, results) {
 
 function appendMissedBarcodes (results, missedBarcodes) {
   // here we add the notfound barcodes to the results
-  let resultsPlusMissed = results
-  for (let missed of missedBarcodes.values()) {
-    resultsPlusMissed.push({'bib_record_number': 'Not Found', 'item_record_number': 'Not Found', 'barcode': missed})
+  const resultsPlusMissed = results
+  for (const missed of missedBarcodes.values()) {
+    resultsPlusMissed.push({ bib_record_number: 'Not Found', item_record_number: 'Not Found', barcode: missed })
   }
-  return resultsPlusMissed  
-
+  return resultsPlusMissed
 }
 
-function difference(setA, setB) {
+function difference (setA, setB) {
   // here we find the difference between the uploaded oclcs and the found oclcs
-  let difference = new Set(setA)
-  for (let elem of setB) {
+  const difference = new Set(setA)
+  for (const elem of setB) {
     difference.delete(elem)
   }
   return difference
