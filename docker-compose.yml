@@ -3,11 +3,10 @@ services:
   sierra-reports:
     build: .
     container_name: sierra-reports
+    image: libapps-admin.uncw.edu:8000/randall-dev/sierra-reports
     ports:
       - "3000:3000"
     env_file: .env
-    environment:
-      - NODE_ENV=development
     volumes:
       - ./app/:/usr/src/app/
     command: npm run dev

@@ -1,5 +1,6 @@
 const csvWriter = require('csv-writer').createObjectCsvWriter
 const fs = require('fs').promises
+const fsSync = require('fs')
 const path = require('path')
 
 const db = require('../dbs/sierra')
@@ -131,6 +132,9 @@ function difference (setA, setB) {
 
 async function writeCSV (results, originalFilename, next) {
   const outputFilename = `${path.basename(originalFilename, '.txt')}_output.csv`
+  if (!fsSync.existsSync('./app/public/downloads')) {
+    fsSync.mkdirSync('./app/public/downloads')
+  }
   const outputPath = `./app/public/downloads/${outputFilename}`
   const header = makeHeader(results)
   const writer = csvWriter({

@@ -1,10 +1,9 @@
-FROM node:15-alpine
+FROM amd64/node:16-alpine
 
 RUN apk update && \
   apk upgrade && \
   apk add ca-certificates && update-ca-certificates && \
-  apk add tzdata g++ gcc libgcc libstdc++ linux-headers make python && \
-  npm install --quiet node-gyp -g
+  apk add --update tzdata
 
 ENV TZ=America/New_York
 
@@ -18,5 +17,4 @@ COPY --chown=node:node app/ ./app
 WORKDIR /usr/src/app/
 
 EXPOSE 3000
-
 CMD npm start
