@@ -43,6 +43,4 @@ To add a new package, run `npm install {{whatever}}` on your local computer to a
 
 To revise the app, revised the code in the ./app folder.  Nodemon inside the container will auto-reload the app whenever you revise ./app.  This works because the ./app folder on your local computer is volume mounted inside the container.  Any revisions to ./app is reflected inside container.
 
-Test your changes:  `docker exec sierra-reports npm run test`
-
 Push any code changes to gitlab.
