@@ -1,8 +1,6 @@
 ### What the app does
 
-  This app does various queries on Sierra db.
-
-  It is intended mainly for Jason, Elisabeth, & other librarians.
+  This webapp enables logged-in users to make certain revisions in the Sierra db.
 
 ### How to build a prod image
 
@@ -21,11 +19,16 @@
   Create a file at sierra-reports/.env with contents:  (find the ldap user/pass in Rancher or where we save passwords.  Use your personal sierra user/pass.)
 
   ```
-  LDAP_USER=ActualLdapUser
-  LDAP_PASS=ActualLdapPass
-  SIERRA_USER=ActualSierraUser
-  SIERRA_PASS=ActualSierraPass
-  NODE_ENV=development
+  LDAP_USER=CHANGEME
+  LDAP_PASS=CHANGEME
+  LDAP_URL=CHANGEME
+  LDAP_PORT=CHANGEME
+  SIERRA_URL=CHANGEME
+  SIERRA_PORT=CHANGEME
+  SIERRA_DB=CHANGEME
+  SIERRA_USER=CHANGEME
+  SIERRA_PASS=CHANGEME
+  NODE_ENV=development (or production)
   ```
 
 then,

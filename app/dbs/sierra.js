@@ -5,9 +5,9 @@ const { Pool } = require('pg')
 const client = new pg.Client({
   user: process.env.SIERRA_USER,
   password: process.env.SIERRA_PASS,
-  database: 'iii',
-  port: 1032,
-  host: 'sierra-db.uncw.edu',
+  database: process.env.SIERRA_DB,
+  port: process.env.SIERRA_PORT,
+  host: process.env.SIERRA_URL,
   ssl: {
     rejectUnauthorized: false
   },
@@ -20,9 +20,9 @@ client.connect()
 const pool = new Pool({
   user: process.env.SIERRA_USER,
   password: process.env.SIERRA_PASS,
-  database: 'iii',
-  port: 1032,
-  host: 'sierra-db.uncw.edu',
+  database: process.env.SIERRA_DB,
+  port: process.env.SIERRA_PORT,
+  host: process.env.SIERRA_URL,
   ssl: {
     rejectUnauthorized: false
   },
